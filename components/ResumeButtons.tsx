@@ -16,16 +16,22 @@ const STORAGE_KEY = "naruto-watch-program-progress";
 
 export default function ResumeButtons() {
   const [narutoHref, setNarutoHref] = useState("/program");
-  const [narutoLabel, setNarutoLabel] = useState("Start Naruto Part 1");
+  const [narutoLabel, setNarutoLabel] = useState("Start Naruto");
   const [narutoSub, setNarutoSub] = useState("");
 
   const [shippudenHref, setShippudenHref] = useState("/shippuden");
   const [shippudenLabel, setShippudenLabel] = useState("Go to Shippuden");
   const [shippudenSub, setShippudenSub] = useState("");
 
+  const [hasProgress, setHasProgress] = useState(false);
+
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const saved: SavedProgressItem[] = raw ? JSON.parse(raw) : [];
+
+    if (saved.length > 0) {
+      setHasProgress(true);
+    }
 
     const completedNaruto = new Set(
       saved.filter((item) => item.series === "naruto").map((item) => item.slug)
@@ -52,7 +58,7 @@ export default function ResumeButtons() {
 
     if (completedNarutoCount > 0 && nextNarutoStep) {
       setNarutoHref(`/program/${nextNarutoStep.slug}`);
-      setNarutoLabel("Continue Naruto Part 1");
+      setNarutoLabel("Continue Naruto");
       setNarutoSub(`Next: ${nextNarutoStep.title}`);
     }
 
@@ -63,27 +69,43 @@ export default function ResumeButtons() {
     }
   }, []);
 
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-      <Link
-        href={narutoHref}
-        className="flex flex-col items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full transition"
-      >
-        <span>{narutoLabel}</span>
-        {narutoSub && (
-          <span className="text-xs text-white/80 mt-1">{narutoSub}</span>
-        )}
-      </Link>
+  const handleReset = () => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.location.reload();
+  };
 
-      <Link
-        href={shippudenHref}
-        className="flex flex-col items-center justify-center border border-gray-700 hover:border-white text-white font-semibold px-6 py-3 rounded-full transition"
-      >
-        <span>{shippudenLabel}</span>
-        {shippudenSub && (
-          <span className="text-xs text-gray-400 mt-1">{shippudenSub}</span>
-        )}
-      </Link>
+  return (
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Link
+          href={narutoHref}
+          className="flex flex-col items-center justify-center bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-3 rounded-full transition"
+        >
+          <span>{narutoLabel}</span>
+          {narutoSub && (
+            <span className="text-xs text-white/80 mt-1">{narutoSub}</span>
+          )}
+        </Link>
+
+        <Link
+          href={shippudenHref}
+          className="flex flex-col items-center justify-center border border-gray-700 hover:border-white text-white font-semibold px-6 py-3 rounded-full transition"
+        >
+          <span>{shippudenLabel}</span>
+          {shippudenSub && (
+            <span className="text-xs text-gray-400 mt-1">{shippudenSub}</span>
+          )}
+        </Link>
+      </div>
+
+      {hasProgress && (
+        <button
+          onClick={handleReset}
+          className="text-sm text-gray-500 hover:text-red-400 transition underline"
+        >
+          Reset progress
+        </button>
+      )}
     </div>
   );
 }
