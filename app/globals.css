@@ -1,9 +1,78 @@
 @import "tailwindcss";
 
+:root {
+  --font-sans: var(--font-rounded-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 html,
 body {
   background: black;
   color: white;
   margin: 0;
   padding: 0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  letter-spacing: -0.045em;
+  transform: scale(1.01);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.05),
+    0 3px 10px rgba(249, 115, 22, 0.18),
+    0 0 18px rgba(249, 115, 22, 0.12);
+  color: #fffdf9;
+}
+
+h2,
+h3 {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04),
+    0 2px 6px rgba(255, 255, 255, 0.05);
+}
+
+h4,
+h5,
+h6 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+
+  background:
+    radial-gradient(circle at 20% 10%, rgba(249, 115, 22, 0.08), transparent 30%),
+    radial-gradient(circle at 80% 90%, rgba(59, 130, 246, 0.06), transparent 30%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03), transparent 40%);
+
+  filter: blur(20px);
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono), monospace;
 }

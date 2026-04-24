@@ -1,96 +1,136 @@
+import Link from "next/link";
 import ResumeButtons from "@/components/ResumeButtons";
-import { steps } from "@/data/steps";
-import { shippudenSteps } from "@/data/shippudenSteps";
+import StoryTimeline from "@/components/StoryTimeline";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-16">
-      <div className="max-w-5xl mx-auto">
-        <section className="text-center py-16">
-          <p className="text-sm uppercase tracking-[0.2em] text-orange-300 mb-4">
+    <main className="min-h-screen bg-black text-white">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        
+        {/* TIMELINE (no box, just breathing space) */}
+        <div className="pt-8">
+          <StoryTimeline />
+        </div>
+
+        {/* HERO (no container box) */}
+        <section className="mx-auto max-w-4xl pb-12 pt-6 text-center">
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-orange-300">
             Naruto Watch Program
           </p>
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
-            The Best Way to Experience Naruto
+          <h1 className="mb-6 text-5xl font-black leading-[0.95] tracking-tight text-white md:text-7xl">
+            How to watch the Naruto Anime
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-8 mb-8">
-            A guided watch program for Naruto and Shippuden that tells you what to
-            watch, what to skip, and how to keep the momentum without getting lost
-            in filler.
+          <p className="mx-auto mb-5 max-w-3xl text-lg leading-8 text-gray-300 md:text-xl">
+            A clean watch path for following the main Naruto story in order,
+            without pacing issues or unnecessary detours.
+          </p>
+
+          <p className="mx-auto mb-8 max-w-3xl text-base leading-7 text-gray-400">
+            Mark canon arcs complete as you go. Filler, movies, and extras are
+            placed where they fit instead of interrupting the core journey.
           </p>
 
           <ResumeButtons />
         </section>
 
-        <section className="grid gap-6 md:grid-cols-2 mt-8">
-          <div className="border border-gray-800 rounded-2xl p-6 bg-white/5">
-            <p className="text-sm uppercase tracking-wide text-orange-300 mb-2">
-              Naruto Part 1
-            </p>
-            <h2 className="text-2xl font-semibold mb-3">
-              {steps.length} guided steps
-            </h2>
-            <p className="text-gray-300 leading-7">
-              A cleaner first watch through the original series with filler
-              guidance, watch notes, and clear stopping points.
-            </p>
-          </div>
-
-          <div className="border border-gray-800 rounded-2xl p-6 bg-white/5">
-            <p className="text-sm uppercase tracking-wide text-orange-300 mb-2">
-              Naruto Shippuden
-            </p>
-            <h2 className="text-2xl font-semibold mb-3">
-              {shippudenSteps.length} guided steps
-            </h2>
-            <p className="text-gray-300 leading-7">
-              A momentum-first path through Shippuden with cleaner war arc
-              guidance and fewer pacing traps.
-            </p>
+        {/* RULE STRIP (lighter, no heavy container) */}
+        <section className="my-10 flex justify-center">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-400">
+            <span className="text-white">Canon first</span>
+            <span className="opacity-40">•</span>
+            <span>Track progress</span>
+            <span className="opacity-40">•</span>
+            <span>Extras later</span>
           </div>
         </section>
 
-        <section className="grid gap-6 md:grid-cols-3 mt-12">
-          <div className="border border-gray-800 rounded-2xl p-6 bg-white/5">
-            <h2 className="text-xl font-semibold mb-3">Clean Watch Order</h2>
-            <p className="text-gray-300 leading-7">
-              Follow a clear step-by-step path instead of digging through random
-              filler guides and episode lists.
-            </p>
-          </div>
+        {/* NAV PATHS (less boxed, more surface-based) */}
+        <section className="grid gap-6 md:grid-cols-3">
+          {/* PART 1 */}
+          <Link
+            href="/program"
+            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500/15 to-transparent p-6 transition-all duration-200 hover:-translate-y-1"
+          >
+            <div className="absolute inset-0 opacity-0 transition group-hover:opacity-100">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(249,115,22,0.25),transparent_60%)]" />
+            </div>
 
-          <div className="border border-gray-800 rounded-2xl p-6 bg-white/5">
-            <h2 className="text-xl font-semibold mb-3">Filler Guidance</h2>
-            <p className="text-gray-300 leading-7">
-              Know what to skip, what to keep, and what can wait until later
-              without ruining the experience.
-            </p>
-          </div>
+            <div className="relative z-10">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+                Start here
+              </p>
 
-          <div className="border border-gray-800 rounded-2xl p-6 bg-white/5">
-            <h2 className="text-xl font-semibold mb-3">Watch Notes That Matter</h2>
-            <p className="text-gray-300 leading-7">
-              Get the context behind each stretch so the series lands the way it
-              should the first time through.
-            </p>
-          </div>
+              <h2 className="text-2xl font-black tracking-tight text-white">
+                Part 1
+              </h2>
+
+              <p className="mt-3 leading-7 text-gray-300">
+                Begin Naruto from the start and follow the core canon path.
+              </p>
+            </div>
+          </Link>
+
+          {/* SHIPPUDEN */}
+          <Link
+            href="/shippuden"
+            className="group relative overflow-hidden rounded-3xl bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-1"
+          >
+            <div className="relative z-10">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+                Continue
+              </p>
+
+              <h2 className="text-2xl font-black tracking-tight text-white">
+                Shippuden
+              </h2>
+
+              <p className="mt-3 leading-7 text-gray-300">
+                Pick up after Part 1 and continue through the main story ending.
+              </p>
+            </div>
+          </Link>
+
+          {/* BORUTO */}
+          <Link
+            href="/boruto"
+            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500/10 to-transparent p-6 transition-all duration-200 hover:-translate-y-1"
+          >
+            <div className="relative z-10">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-blue-300">
+                Extra path
+              </p>
+
+              <h2 className="text-2xl font-black tracking-tight text-white">
+                Boruto
+              </h2>
+
+              <p className="mt-3 leading-7 text-gray-300">
+                Continue into the next generation after finishing the main path.
+              </p>
+            </div>
+          </Link>
         </section>
 
-        <section className="mt-16 border border-orange-500/30 bg-orange-500/10 rounded-2xl p-8">
-          <p className="text-sm uppercase tracking-wide text-orange-300 mb-2">
-            Built for first-time viewers
+        {/* ABOUT (no box, editorial feel) */}
+        <section className="mx-auto mt-16 max-w-4xl pb-16">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+            About the program
           </p>
 
-          <h2 className="text-3xl font-semibold mb-4">
-            Naruto should not feel confusing on your first watch
+          <h2 className="mb-6 text-3xl font-black tracking-tight text-white sm:text-4xl">
+            A timeless series.
           </h2>
 
-          <p className="text-gray-300 leading-8 max-w-3xl">
-            The point of this program is simple: preserve the momentum, protect the
-            emotional payoff, and help people experience Naruto the right way
-            without getting buried in filler, mixed episodes, or bad watch advice.
+          <p className="leading-8 text-gray-300">
+            Built for anyone new to Naruto, returning after years, or watching
+            it all the way through for the first time. The anime is roughly 41%
+            filler across Naruto and Shippuden, which can disrupt pacing if
+            watched straight through. This program follows the core story as it
+            was originally told in the manga by Masashi Kishimoto, keeping the
+            experience consistent, focused, and aligned with the intended story
+            from start to finish.
           </p>
         </section>
       </div>
