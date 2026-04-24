@@ -7,12 +7,12 @@ export default function Home() {
     <main className="min-h-screen bg-black text-white">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         
-        {/* TIMELINE (no box, just breathing space) */}
+        {/* TIMELINE */}
         <div className="pt-8">
           <StoryTimeline />
         </div>
 
-        {/* HERO (no container box) */}
+        {/* HERO */}
         <section className="mx-auto max-w-4xl pb-12 pt-6 text-center">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.24em] text-orange-300">
             Naruto Watch Program
@@ -23,32 +23,31 @@ export default function Home() {
           </h1>
 
           <p className="mx-auto mb-5 max-w-3xl text-lg leading-8 text-gray-300 md:text-xl">
-            A clean watch path for following the main Naruto story in order,
-            without pacing issues or unnecessary detours.
+            Follow the main story in order, without filler interruptions or
+            broken pacing.
           </p>
 
           <p className="mx-auto mb-8 max-w-3xl text-base leading-7 text-gray-400">
-            Mark canon arcs complete as you go. Filler, movies, and extras are
-            placed where they fit instead of interrupting the core journey.
+            This program keeps everything where it belongs - canon first,
+            everything else placed around it.
           </p>
 
           <ResumeButtons />
         </section>
 
-        {/* RULE STRIP (lighter, no heavy container) */}
+        {/* RULE STRIP */}
         <section className="my-10 flex justify-center">
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-gray-400">
             <span className="text-white">Canon first</span>
             <span className="opacity-40">•</span>
-            <span>Track progress</span>
+            <span>Track your progress</span>
             <span className="opacity-40">•</span>
             <span>Extras later</span>
           </div>
         </section>
 
-        {/* NAV PATHS (less boxed, more surface-based) */}
+        {/* NAV PATHS */}
         <section className="grid gap-6 md:grid-cols-3">
-          {/* PART 1 */}
           <Link
             href="/program"
             className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500/15 to-transparent p-6 transition-all duration-200 hover:-translate-y-1"
@@ -67,12 +66,11 @@ export default function Home() {
               </h2>
 
               <p className="mt-3 leading-7 text-gray-300">
-                Begin Naruto from the start and follow the core canon path.
+                Begin from the start and follow the core canon path.
               </p>
             </div>
           </Link>
 
-          {/* SHIPPUDEN */}
           <Link
             href="/shippuden"
             className="group relative overflow-hidden rounded-3xl bg-white/[0.03] p-6 transition-all duration-200 hover:-translate-y-1"
@@ -87,12 +85,11 @@ export default function Home() {
               </h2>
 
               <p className="mt-3 leading-7 text-gray-300">
-                Pick up after Part 1 and continue through the main story ending.
+                Continue the main story through its full conclusion.
               </p>
             </div>
           </Link>
 
-          {/* BORUTO */}
           <Link
             href="/boruto"
             className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500/10 to-transparent p-6 transition-all duration-200 hover:-translate-y-1"
@@ -107,30 +104,28 @@ export default function Home() {
               </h2>
 
               <p className="mt-3 leading-7 text-gray-300">
-                Continue into the next generation after finishing the main path.
+                Continue into the next generation after finishing Naruto.
               </p>
             </div>
           </Link>
         </section>
 
-        {/* ABOUT (no box, editorial feel) */}
+        {/* ABOUT */}
         <section className="mx-auto mt-16 max-w-4xl pb-16">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
             About the program
           </p>
 
           <h2 className="mb-6 text-3xl font-black tracking-tight text-white sm:text-4xl">
-            A timeless series.
+            Built around the original story.
           </h2>
 
           <p className="leading-8 text-gray-300">
-            Built for anyone new to Naruto, returning after years, or watching
-            it all the way through for the first time. The anime is roughly 41%
-            filler across Naruto and Shippuden, which can disrupt pacing if
-            watched straight through. This program follows the core story as it
-            was originally told in the manga by Masashi Kishimoto, keeping the
-            experience consistent, focused, and aligned with the intended story
-            from start to finish.
+            Naruto is roughly 41% filler across the full anime. Watching it
+            straight through breaks pacing and weakens the story. This program
+            follows the manga-based canon path first, then layers in optional
+            material where it actually fits, keeping the experience focused,
+            consistent, and true to how the story was meant to be experienced.
           </p>
         </section>
       </div>

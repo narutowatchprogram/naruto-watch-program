@@ -12,24 +12,35 @@ type SavedProgressItem = {
   title: string;
 };
 
+type MainPathStep = {
+  slug: string;
+  title: string;
+};
+
 const STORAGE_KEY = "naruto-watch-program-progress";
 
 const OPTIONAL_CANON_NOVEL_SLUGS = new Set([
   "itachi-shinden",
   "sasuke-shinden",
   "shikamaru-hiden",
-  "konoha-hiden",
 ]);
 
 const OPTIONAL_ANIME_ORIGINAL_SLUGS = new Set(["kakashi-anbu-arc"]);
+
+const REQUIRED_SHIPPUDEN_ENDING_SLUGS = new Set([
+  "movie-the-last",
+  "konoha-hiden",
+]);
 
 const NON_CANON_STEP_SLUGS = new Set([
   "movie-land-of-snow",
   "movie-stone-of-gelel",
   "movie-crescent-moon",
   "part-1-filler-block",
+  "kakashi-face-reveal",
   "movie-shippuden-1",
   "early-filler-block",
+  "mid-filler-block",
   "movie-bonds",
   "movie-will-of-fire",
   "movie-lost-tower",
@@ -49,18 +60,51 @@ const NON_CANON_STEP_SLUGS = new Set([
   "war-filler-break-9",
   "war-filler-break-12",
   "late-ending-filler-break",
+  "kakashi-face-reveal-2",
   "ending-filler-break",
   "movie-road-to-ninja",
-  "kakashi-face-reveal",
-  "kakashi-face-reveal-2",
+  "early-filler-break",
+  "team-7-filler-break",
+  "cho-cho-filler-break",
+  "small-filler-break-1",
+  "filler-break-2",
+  "filler-break-3",
+  "filler-break-4",
+  "filler-break-5",
+  "late-filler-break",
 ]);
 
-function isMainPathCanon(slug: string) {
+function isNarutoMainPath(slug: string) {
   return (
     !NON_CANON_STEP_SLUGS.has(slug) &&
     !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
     !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
   );
+}
+
+function isShippudenMainPath(slug: string) {
+  if (REQUIRED_SHIPPUDEN_ENDING_SLUGS.has(slug)) return true;
+
+  return (
+    !NON_CANON_STEP_SLUGS.has(slug) &&
+    !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
+    !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
+  );
+}
+
+function getNextSequentialStep(
+  mainPath: MainPathStep[],
+  completedSlugs: Set<string>
+) {
+  return mainPath.find((step) => !completedSlugs.has(step.slug));
+}
+
+function isSequentiallyComplete(
+  mainPath: MainPathStep[],
+  completedSlugs: Set<string>
+) {
+  if (mainPath.length === 0) return false;
+  return mainPath.every((step) => completedSlugs.has(step.slug));
 }
 
 export default function ResumeButtons() {
@@ -72,6 +116,7 @@ export default function ResumeButtons() {
   const [shippudenLabel, setShippudenLabel] = useState("Go to Shippuden");
   const [shippudenSub, setShippudenSub] = useState("");
 
+  const [mainComplete, setMainComplete] = useState(false);
   const [hasProgress, setHasProgress] = useState(false);
 
   useEffect(() => {
@@ -83,65 +128,68 @@ export default function ResumeButtons() {
 
       const completedNaruto = new Set(
         saved
-          .filter(
-            (item) =>
-              item.series === "naruto" && isMainPathCanon(item.slug)
-          )
+          .filter((item) => item.series === "naruto")
           .map((item) => item.slug)
       );
 
       const completedShippuden = new Set(
         saved
-          .filter(
-            (item) =>
-              item.series === "shippuden" &&
-              isMainPathCanon(item.slug)
-          )
+          .filter((item) => item.series === "shippuden")
           .map((item) => item.slug)
       );
 
       const narutoMainPath = steps.filter((step) =>
-        isMainPathCanon(step.slug)
+        isNarutoMainPath(step.slug)
       );
+
       const shippudenMainPath = shippudenSteps.filter((step) =>
-        isMainPathCanon(step.slug)
+        isShippudenMainPath(step.slug)
       );
 
-      const nextNarutoStep = narutoMainPath.find(
-        (step) => !completedNaruto.has(step.slug)
-      );
-      const nextShippudenStep = shippudenMainPath.find(
-        (step) => !completedShippuden.has(step.slug)
+      const nextNarutoStep = getNextSequentialStep(
+        narutoMainPath,
+        completedNaruto
       );
 
-      const completedNarutoCount = narutoMainPath.filter((step) =>
-        completedNaruto.has(step.slug)
-      ).length;
+      const nextShippudenStep = getNextSequentialStep(
+        shippudenMainPath,
+        completedShippuden
+      );
 
-      const completedShippudenCount = shippudenMainPath.filter((step) =>
-        completedShippuden.has(step.slug)
-      ).length;
+      const narutoComplete = isSequentiallyComplete(
+        narutoMainPath,
+        completedNaruto
+      );
 
-      if (completedNarutoCount > 0 && nextNarutoStep) {
+      const shippudenComplete = isSequentiallyComplete(
+        shippudenMainPath,
+        completedShippuden
+      );
+
+      setMainComplete(narutoComplete && shippudenComplete);
+
+      if (nextNarutoStep) {
         setNarutoHref(`/program/${nextNarutoStep.slug}`);
-        setNarutoLabel("Continue Naruto");
+        setNarutoLabel(
+          completedNaruto.size > 0 ? "Continue Naruto" : "Start Naruto"
+        );
         setNarutoSub(nextNarutoStep.title);
-      } else if (
-        completedNarutoCount === narutoMainPath.length &&
-        narutoMainPath.length > 0
-      ) {
-        setNarutoLabel("Naruto finished");
+      } else {
+        setNarutoHref("/program");
+        setNarutoLabel("Naruto complete");
+        setNarutoSub("");
       }
 
-      if (completedShippudenCount > 0 && nextShippudenStep) {
+      if (nextShippudenStep) {
         setShippudenHref(`/shippuden/${nextShippudenStep.slug}`);
-        setShippudenLabel("Continue Shippuden");
+        setShippudenLabel(
+          completedShippuden.size > 0 ? "Continue Shippuden" : "Go to Shippuden"
+        );
         setShippudenSub(nextShippudenStep.title);
-      } else if (
-        completedShippudenCount === shippudenMainPath.length &&
-        shippudenMainPath.length > 0
-      ) {
-        setShippudenLabel("Shippuden finished");
+      } else {
+        setShippudenHref("/shippuden");
+        setShippudenLabel("Shippuden complete");
+        setShippudenSub("");
       }
     }
 
@@ -180,7 +228,7 @@ export default function ResumeButtons() {
 
             {narutoSub && (
               <p className="mt-2 text-sm text-orange-100/80">
-                {narutoSub}
+                Next: {narutoSub}
               </p>
             )}
           </div>
@@ -196,7 +244,7 @@ export default function ResumeButtons() {
 
           <div className="relative z-10">
             <p className="text-xs font-bold uppercase tracking-wide text-orange-300">
-              Continue
+              Next phase
             </p>
 
             <h3 className="mt-2 text-xl font-black text-white">
@@ -205,7 +253,7 @@ export default function ResumeButtons() {
 
             {shippudenSub && (
               <p className="mt-2 text-sm text-gray-300">
-                {shippudenSub}
+                Next: {shippudenSub}
               </p>
             )}
           </div>
@@ -222,7 +270,11 @@ export default function ResumeButtons() {
 
         <Link
           href="/boruto"
-          className="rounded-full border border-blue-500/30 bg-blue-500/10 px-5 py-3 text-sm font-semibold text-blue-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-400 hover:bg-blue-500/15 active:translate-y-0 active:scale-[0.98]"
+          className={`rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] ${
+            mainComplete
+              ? "border-blue-400 bg-blue-500/15 text-blue-200 hover:bg-blue-500/25"
+              : "border-blue-500/30 bg-blue-500/10 text-blue-200 hover:border-blue-400 hover:bg-blue-500/15"
+          }`}
         >
           Boruto
         </Link>

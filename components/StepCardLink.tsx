@@ -48,13 +48,19 @@ export default function StepCardLink({
       className={[
         "group relative block overflow-hidden rounded-2xl border p-0 transition-all duration-200",
         "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]",
+        "before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-orange-300/35 before:to-transparent before:opacity-0 before:transition before:duration-300",
+        "hover:before:opacity-100",
         isComplete
-          ? "border-green-500/20 opacity-85 hover:border-green-400/35 hover:opacity-100"
-          : "border-white/10 hover:border-orange-400/35",
+          ? "border-green-500/20 opacity-85 shadow-[0_0_22px_rgba(34,197,94,0.06)] hover:border-green-400/35 hover:opacity-100"
+          : "border-white/10 hover:border-orange-400/35 hover:shadow-[0_0_24px_rgba(249,115,22,0.08)]",
       ].join(" ")}
     >
       <span className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
         <span className="absolute left-0 top-0 h-full w-1/3 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md transition-transform duration-700 group-hover:translate-x-[300%]" />
+      </span>
+
+      <span className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-0 transition duration-300 group-hover:opacity-100">
+        <span className="absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_18%_0%,rgba(249,115,22,0.08),transparent_36%)]" />
       </span>
 
       <span className="relative z-10 block">{children}</span>

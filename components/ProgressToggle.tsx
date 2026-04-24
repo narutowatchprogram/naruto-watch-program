@@ -22,10 +22,7 @@ const STORAGE_KEY = "naruto-watch-program-progress";
 const PROGRESS_EVENT = "naruto-progress-updated";
 
 function readProgress(): SavedProgressItem[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
+  if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
@@ -61,9 +58,7 @@ export default function ProgressToggle({
   const burstTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (isControlled) {
-      return;
-    }
+    if (isControlled) return;
 
     function syncFromStorage() {
       const saved = readProgress();
@@ -75,18 +70,9 @@ export default function ProgressToggle({
 
     return () => {
       window.removeEventListener(PROGRESS_EVENT, syncFromStorage);
-
-      if (resetTimerRef.current) {
-        window.clearTimeout(resetTimerRef.current);
-      }
-
-      if (rippleTimerRef.current) {
-        window.clearTimeout(rippleTimerRef.current);
-      }
-
-      if (burstTimerRef.current) {
-        window.clearTimeout(burstTimerRef.current);
-      }
+      if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+      if (rippleTimerRef.current) window.clearTimeout(rippleTimerRef.current);
+      if (burstTimerRef.current) window.clearTimeout(burstTimerRef.current);
     };
   }, [id, isControlled]);
 
@@ -102,12 +88,7 @@ export default function ProgressToggle({
       const next = nextCompleted
         ? [
             ...saved.filter((item) => item.id !== id),
-            {
-              id,
-              series,
-              slug,
-              title,
-            },
+            { id, series, slug, title },
           ]
         : saved.filter((item) => item.id !== id);
 
@@ -119,17 +100,9 @@ export default function ProgressToggle({
     setShowRipple(true);
     setShowBurst(nextCompleted);
 
-    if (resetTimerRef.current) {
-      window.clearTimeout(resetTimerRef.current);
-    }
-
-    if (rippleTimerRef.current) {
-      window.clearTimeout(rippleTimerRef.current);
-    }
-
-    if (burstTimerRef.current) {
-      window.clearTimeout(burstTimerRef.current);
-    }
+    if (resetTimerRef.current) window.clearTimeout(resetTimerRef.current);
+    if (rippleTimerRef.current) window.clearTimeout(rippleTimerRef.current);
+    if (burstTimerRef.current) window.clearTimeout(burstTimerRef.current);
 
     resetTimerRef.current = window.setTimeout(() => {
       setIsAnimating(false);
@@ -146,29 +119,23 @@ export default function ProgressToggle({
 
   const buttonClasses = useMemo(() => {
     return isCompleted
-      ? "border-green-500/35 bg-green-500/15 text-green-200 shadow-[0_0_0_1px_rgba(34,197,94,0.12),0_10px_30px_rgba(34,197,94,0.08)]"
-      : "border-green-500/25 bg-green-500/5 text-green-300 hover:border-green-400/50 hover:bg-green-500/10";
+      ? "border-green-500/35 bg-green-500/15 text-green-200 shadow-[0_0_0_1px_rgba(34,197,94,0.12),0_10px_30px_rgba(34,197,94,0.08),0_0_36px_rgba(34,197,94,0.08)]"
+      : "border-green-500/25 bg-green-500/5 text-green-300 hover:border-green-400/50 hover:bg-green-500/10 hover:shadow-[0_0_28px_rgba(34,197,94,0.1)]";
   }, [isCompleted]);
 
   const iconClasses = useMemo(() => {
     return isCompleted
-      ? "border-green-500/35 bg-green-500/20 text-green-200"
+      ? "border-green-500/35 bg-green-500/20 text-green-200 shadow-[0_0_18px_rgba(34,197,94,0.18)]"
       : "border-green-500/25 bg-black/20 text-green-300 group-hover:border-green-400/50";
   }, [isCompleted]);
 
-  const wrapperScaleClass = isAnimating ? "scale-[1.015]" : "scale-100";
-
-  const sharedGlow = showRipple
-    ? "before:opacity-100 after:opacity-100"
-    : "before:opacity-0 after:opacity-0";
+  const wrapperScaleClass = isAnimating ? "scale-[1.02]" : "scale-100";
 
   const sharedButtonClass = [
     "group relative isolate overflow-hidden transition duration-200",
     "focus:outline-none focus:ring-2 focus:ring-green-500/40",
-    "before:pointer-events-none before:absolute before:left-1/2 before:top-1/2 before:h-16 before:w-16 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-green-400/20 before:blur-xl before:transition-opacity before:duration-300",
-    "after:pointer-events-none after:absolute after:left-1/2 after:top-1/2 after:h-24 after:w-24 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:border after:border-green-300/30 after:transition-all after:duration-500",
-    showRipple ? "after:scale-100" : "after:scale-50",
-    sharedGlow,
+    "before:pointer-events-none before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-green-300/45 before:to-transparent before:opacity-0 before:transition before:duration-300",
+    "hover:before:opacity-100",
     wrapperScaleClass,
     buttonClasses,
   ].join(" ");
@@ -180,6 +147,11 @@ export default function ProgressToggle({
       <span className="pointer-events-none absolute left-1/2 top-1/2 h-1.5 w-12 -translate-x-1/2 -translate-y-1/2 rotate-90 rounded-full bg-green-300/25 animate-ping" />
     </>
   ) : null;
+
+  const primaryText = isCompleted ? "Completed" : "Mark complete";
+  const secondaryText = isCompleted
+    ? "Progress saved"
+    : "Move Naruto forward";
 
   if (variant === "side") {
     return (
@@ -194,26 +166,23 @@ export default function ProgressToggle({
       >
         {burstNodes}
 
+        {showRipple && (
+          <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.18),transparent_42%)]" />
+        )}
+
         <span
           className={[
-            "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-lg transition duration-200",
+            "relative flex h-10 w-10 items-center justify-center rounded-full border text-lg transition duration-200",
             isAnimating ? "scale-110" : "scale-100",
             iconClasses,
           ].join(" ")}
         >
-          <span className="relative z-10">{isCompleted ? "✓" : "+"}</span>
-          {showRipple && (
-            <span className="pointer-events-none absolute inset-0 rounded-full border border-green-300/35 animate-ping" />
-          )}
+          <span>{isCompleted ? "✓" : "+"}</span>
         </span>
 
         <span className="relative z-10 flex flex-col">
-          <span className="text-sm font-semibold">
-            {isCompleted ? "Completed" : "Mark complete"}
-          </span>
-          <span className="text-xs text-white/75">
-            {isCompleted ? "Canon progress saved" : "Advance your canon progress"}
-          </span>
+          <span className="text-sm font-semibold">{primaryText}</span>
+          <span className="text-xs text-white/75">{secondaryText}</span>
         </span>
       </button>
     );
@@ -231,33 +200,28 @@ export default function ProgressToggle({
     >
       {burstNodes}
 
-      <span className="relative z-10 flex min-w-0 items-center gap-3">
+      {showRipple && (
+        <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.18),transparent_42%)]" />
+      )}
+
+      <span className="relative z-10 flex items-center gap-3">
         <span
           className={[
-            "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-lg transition duration-200",
+            "relative flex h-11 w-11 items-center justify-center rounded-full border text-lg transition duration-200",
             isAnimating ? "scale-110" : "scale-100",
             iconClasses,
           ].join(" ")}
         >
-          <span className="relative z-10">{isCompleted ? "✓" : "+"}</span>
-          {showRipple && (
-            <span className="pointer-events-none absolute inset-0 rounded-full border border-green-300/35 animate-ping" />
-          )}
+          <span>{isCompleted ? "✓" : "+"}</span>
         </span>
 
-        <span className="flex min-w-0 flex-col text-left">
-          <span className="font-semibold">
-            {isCompleted ? "Completed" : "Mark complete"}
-          </span>
-          <span className="text-sm text-white/75">
-            {isCompleted
-              ? "Canon progress saved"
-              : "This moves your homepage timeline forward"}
-          </span>
+        <span className="flex flex-col text-left">
+          <span className="font-semibold">{primaryText}</span>
+          <span className="text-sm text-white/75">{secondaryText}</span>
         </span>
       </span>
 
-      <span className="relative z-10 ml-3 shrink-0 text-sm text-white/70 transition group-hover:text-white/90">
+      <span className="relative z-10 text-sm text-white/70">
         {isCompleted ? "Undo" : "Save"}
       </span>
     </button>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import ProgressToggle from "./ProgressToggle";
+import StoryCheckpoint from "./StoryCheckpoints";
 
 type CanonType =
   | "mangaCanon"
@@ -348,6 +349,8 @@ export default function SeriesStepPage({
   const progressCanon = isProgressCanon(series, step);
   const primaryBadge = getPrimaryBadge(series, canonType, progressCanon);
   const secondaryBadge = getSecondaryBadge(series, canonType, progressCanon);
+  const showStoryCheckpoint =
+    progressCanon || canonType === "animeCanon" || canonType === "movie";
 
   const currentIndex = steps.findIndex((item) => item.slug === step.slug);
   const nextMainPathCanon =
@@ -440,7 +443,7 @@ export default function SeriesStepPage({
               </div>
             </div>
 
-            <div className="grid gap-3 sm:gap-4 xl:content-center">
+            <div className="grid gap-3 sm:gap-4 xl:content-start">
               <div
                 className={`rounded-[1.25rem] border px-4 py-4 sm:rounded-[1.75rem] sm:px-5 sm:py-5 ${accent.border} ${accent.bg}`}
               >
@@ -649,41 +652,11 @@ export default function SeriesStepPage({
           </div>
         </section>
 
-        <section className="mt-5 sm:mt-6">
-          <div className={getSectionCardClass(accent)}>
-            <div className="mb-4 flex items-center gap-3">
-              <span className={`h-2.5 w-2.5 rounded-full ${accent.dot}`} />
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 sm:text-sm">
-                Discussion / AI tools
-              </p>
-            </div>
-
-            <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
-                <h2 className="text-xl font-semibold text-white sm:text-2xl">
-                  Arc discussion and spoiler-safe tools
-                </h2>
-                <p className="mt-3 leading-7 text-gray-400">
-                  This section can hold spoiler-safe chat, takeaway prompts,
-                  plot questions, foreshadowing notes, AI recap help, and any
-                  arc-specific guidance you want to layer in later.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4 sm:p-5">
-                <p
-                  className={`text-[10px] font-semibold uppercase tracking-[0.18em] sm:text-xs ${accent.text}`}
-                >
-                  Reserved space
-                </p>
-                <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-                  Keep this area open for future engagement modules without
-                  crowding the main watch guidance above.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        {showStoryCheckpoint && (
+          <section className="mt-5 sm:mt-6">
+            <StoryCheckpoint arcId={step.slug} accentColor={accentColor} />
+          </section>
+        )}
 
         {nextMainPathCanon && (
           <section className="mt-5 sm:mt-6">

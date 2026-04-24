@@ -1,29 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { steps } from "@/data/steps";
 import { shippudenSteps } from "@/data/shippudenSteps";
 import { borutoSteps } from "@/data/borutoSteps";
 
+type Series = "naruto" | "shippuden" | "boruto";
+
 type SavedProgressItem = {
   id: string;
-  series: "naruto" | "shippuden" | "boruto";
+  series: Series;
   slug: string;
   title: string;
 };
 
+type TimelineStep = {
+  id: string;
+  series: Series;
+  slug: string;
+};
+
+type CanonType =
+  | "mangaCanon"
+  | "animeCanon"
+  | "mixedCanon"
+  | "filler"
+  | "movie";
+
+type StepWithCanon = {
+  slug: string;
+  canonType?: CanonType;
+};
+
 const STORAGE_KEY = "naruto-watch-program-progress";
 const BORUTO_UNLOCK_KEY = "naruto-watch-program-boruto-unlocked";
-
-const OPTIONAL_CANON_NOVEL_SLUGS = new Set([
-  "itachi-shinden",
-  "sasuke-shinden",
-  "shikamaru-hiden",
-  "konoha-hiden",
-]);
-
-const OPTIONAL_ANIME_ORIGINAL_SLUGS = new Set(["kakashi-anbu-arc"]);
 
 const NON_CANON_STEP_SLUGS = new Set([
   "movie-land-of-snow",
@@ -32,6 +43,7 @@ const NON_CANON_STEP_SLUGS = new Set([
   "part-1-filler-block",
   "movie-shippuden-1",
   "early-filler-block",
+  "mid-filler-block",
   "movie-bonds",
   "movie-will-of-fire",
   "movie-lost-tower",
@@ -61,45 +73,82 @@ const NON_CANON_STEP_SLUGS = new Set([
   "filler-break-3",
   "filler-break-4",
   "filler-break-5",
+  "late-filler-break",
   "kakashi-face-reveal",
   "kakashi-face-reveal-2",
 ]);
 
-function isMainPathCanon(slug: string) {
-  return (
-    !NON_CANON_STEP_SLUGS.has(slug) &&
-    !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
-    !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
-  );
+const OPTIONAL_SHIPPUDEN_SLUGS = new Set([
+  "itachi-shinden",
+  "sasuke-shinden",
+  "shikamaru-hiden",
+  "kakashi-anbu-arc",
+]);
+
+const BORUTO_REQUIRED_SLUGS = new Set([
+  "academy-opening-mixed",
+  "uchiha-family-manga",
+  "mitsuki-one-shot",
+  "chunin-exams-manga-1",
+  "chunin-exams-manga-2",
+  "juugo-manga",
+  "mujina-manga",
+  "kawaki-manga-1",
+  "kawaki-manga-2",
+  "kawaki-manga-3",
+  "final-manga-canon-run",
+]);
+
+function isMainTimelineStep(series: Series, step: StepWithCanon) {
+  if (series === "boruto") {
+    return BORUTO_REQUIRED_SLUGS.has(step.slug);
+  }
+
+  if (series === "shippuden" && step.slug === "konoha-hiden") {
+    return true;
+  }
+
+  if (series === "shippuden" && step.slug === "movie-the-last") {
+    return true;
+  }
+
+  if (series === "shippuden" && OPTIONAL_SHIPPUDEN_SLUGS.has(step.slug)) {
+    return false;
+  }
+
+  return !NON_CANON_STEP_SLUGS.has(step.slug);
 }
 
-const part1CanonSteps = steps
-  .filter((step) => isMainPathCanon(step.slug))
+const part1CanonSteps: TimelineStep[] = steps
+  .filter((step) => isMainTimelineStep("naruto", step))
   .map((step) => ({
     id: `naruto:${step.slug}`,
     series: "naruto" as const,
+    slug: step.slug,
   }));
 
-const shippudenCanonSteps = shippudenSteps
-  .filter((step) => isMainPathCanon(step.slug))
+const shippudenCanonSteps: TimelineStep[] = shippudenSteps
+  .filter((step) => isMainTimelineStep("shippuden", step))
   .map((step) => ({
     id: `shippuden:${step.slug}`,
     series: "shippuden" as const,
+    slug: step.slug,
   }));
 
-const borutoCanonSteps = borutoSteps
-  .filter((step) => isMainPathCanon(step.slug))
+const borutoCanonSteps: TimelineStep[] = borutoSteps
+  .filter((step) => isMainTimelineStep("boruto", step))
   .map((step) => ({
     id: `boruto:${step.slug}`,
     series: "boruto" as const,
+    slug: step.slug,
   }));
 
 const mainCanonSteps = [...part1CanonSteps, ...shippudenCanonSteps];
-const fullCanonTimelineSteps = [...mainCanonSteps, ...borutoCanonSteps];
+const fullTimelineSteps = [...mainCanonSteps, ...borutoCanonSteps];
 
 function getSequentialProgressIndex(
   completedIds: Set<string>,
-  timelineSteps: { id: string }[]
+  timelineSteps: TimelineStep[]
 ) {
   let index = 0;
 
@@ -107,6 +156,7 @@ function getSequentialProgressIndex(
     if (!completedIds.has(step.id)) {
       break;
     }
+
     index += 1;
   }
 
@@ -262,19 +312,16 @@ function getNarutoStage(
 export default function StoryTimeline() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [borutoUnlocked, setBorutoUnlocked] = useState(false);
-  const [dragPercent, setDragPercent] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const [unlockPulse, setUnlockPulse] = useState(false);
 
   useEffect(() => {
     function loadProgress() {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       const saved: SavedProgressItem[] = raw ? JSON.parse(raw) : [];
       setCompletedIds(new Set(saved.map((item) => item.id)));
-
-      const unlocked =
-        window.localStorage.getItem(BORUTO_UNLOCK_KEY) === "true";
-      setBorutoUnlocked(unlocked);
+      setBorutoUnlocked(
+        window.localStorage.getItem(BORUTO_UNLOCK_KEY) === "true"
+      );
     }
 
     loadProgress();
@@ -285,172 +332,141 @@ export default function StoryTimeline() {
     };
   }, []);
 
-  const activeTimelineSteps = borutoUnlocked
-    ? fullCanonTimelineSteps
-    : mainCanonSteps;
-
   const mainProgressIndex = useMemo(() => {
     return getSequentialProgressIndex(completedIds, mainCanonSteps);
   }, [completedIds]);
 
-  const fullProgressIndex = useMemo(() => {
-    return getSequentialProgressIndex(completedIds, fullCanonTimelineSteps);
-  }, [completedIds]);
-
   const mainStoryComplete = mainProgressIndex === mainCanonSteps.length;
+  const activeTimelineSteps =
+    mainStoryComplete && borutoUnlocked ? fullTimelineSteps : mainCanonSteps;
 
-  const activeProgressIndex = borutoUnlocked
-    ? fullProgressIndex
-    : mainProgressIndex;
+  const activeProgressIndex = useMemo(() => {
+    if (!mainStoryComplete || !borutoUnlocked) {
+      return mainProgressIndex;
+    }
+
+    return getSequentialProgressIndex(completedIds, fullTimelineSteps);
+  }, [completedIds, mainProgressIndex, mainStoryComplete, borutoUnlocked]);
 
   const activePercent = useMemo(() => {
     if (activeTimelineSteps.length === 0) return 0;
     return (activeProgressIndex / activeTimelineSteps.length) * 100;
   }, [activeProgressIndex, activeTimelineSteps.length]);
 
-  const controlledPercent = dragPercent ?? activePercent;
-
   const markerPercent = useMemo(() => {
-    return Math.max(1.5, Math.min(98.5, controlledPercent));
-  }, [controlledPercent]);
+    return Math.max(1.5, Math.min(98.5, activePercent));
+  }, [activePercent]);
 
-  const previewIndex = useMemo(() => {
-    if (activeTimelineSteps.length === 0) return 0;
+  const mainSegmentPercent =
+    mainStoryComplete && borutoUnlocked
+      ? (mainCanonSteps.length / fullTimelineSteps.length) * 100
+      : 100;
 
-    const rawIndex = Math.round(
-      (controlledPercent / 100) * activeTimelineSteps.length
-    );
+  const displayedMainFillPercent =
+    mainStoryComplete && borutoUnlocked
+      ? Math.min(activePercent, mainSegmentPercent)
+      : activePercent;
 
-    if (!borutoUnlocked) {
-      return Math.max(0, Math.min(mainCanonSteps.length, rawIndex));
-    }
-
-    return Math.max(0, Math.min(activeTimelineSteps.length, rawIndex));
-  }, [controlledPercent, activeTimelineSteps.length, borutoUnlocked]);
-
-  const previewMainIndex = useMemo(() => {
-    return Math.min(previewIndex, mainCanonSteps.length);
-  }, [previewIndex]);
+  const displayedBorutoFillPercent =
+    mainStoryComplete &&
+    borutoUnlocked &&
+    activePercent > mainSegmentPercent
+      ? activePercent - mainSegmentPercent
+      : 0;
 
   const isBorutoStageActive =
-    borutoUnlocked && previewIndex > mainCanonSteps.length;
+    mainStoryComplete &&
+    borutoUnlocked &&
+    activeProgressIndex > mainCanonSteps.length;
 
   const narutoStage = useMemo(() => {
-    return getNarutoStage(previewMainIndex, isBorutoStageActive);
-  }, [previewMainIndex, isBorutoStageActive]);
-
-  const mainSegmentPercent = borutoUnlocked
-    ? (mainCanonSteps.length / fullCanonTimelineSteps.length) * 100
-    : 100;
-
-  const displayedMainFillPercent = useMemo(() => {
-    if (!borutoUnlocked) {
-      return controlledPercent;
-    }
-    return Math.min(controlledPercent, mainSegmentPercent);
-  }, [borutoUnlocked, controlledPercent, mainSegmentPercent]);
-
-  const displayedBorutoFillPercent = useMemo(() => {
-    if (!borutoUnlocked) return 0;
-    if (controlledPercent <= mainSegmentPercent) return 0;
-    return controlledPercent - mainSegmentPercent;
-  }, [borutoUnlocked, controlledPercent, mainSegmentPercent]);
-
-  const isBorutoZone =
-    borutoUnlocked && controlledPercent > mainSegmentPercent;
-
-  const isPreviewing = dragPercent !== null;
-
-  function getPercentFromClientX(clientX: number) {
-    const timeline = timelineRef.current;
-    if (!timeline) return controlledPercent;
-
-    const rect = timeline.getBoundingClientRect();
-    const nextPercent = ((clientX - rect.left) / rect.width) * 100;
-
-    return Math.max(0, Math.min(100, nextPercent));
-  }
-
-  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
-    const nextPercent = getPercentFromClientX(e.clientX);
-    setIsDragging(true);
-    setDragPercent(nextPercent);
-    e.currentTarget.setPointerCapture(e.pointerId);
-  }
-
-  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
-    if (!isDragging) return;
-    setDragPercent(getPercentFromClientX(e.clientX));
-  }
-
-  function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
-    if (!isDragging) return;
-    setDragPercent(getPercentFromClientX(e.clientX));
-    setIsDragging(false);
-    e.currentTarget.releasePointerCapture(e.pointerId);
-  }
-
-  function handleSliderChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setDragPercent(Number(e.target.value));
-  }
-
-  function resetPreview() {
-    setDragPercent(null);
-    setIsDragging(false);
-  }
+    return getNarutoStage(mainProgressIndex, isBorutoStageActive);
+  }, [mainProgressIndex, isBorutoStageActive]);
 
   function unlockBorutoPath() {
     window.localStorage.setItem(BORUTO_UNLOCK_KEY, "true");
     setBorutoUnlocked(true);
-    setDragPercent(null);
+    setUnlockPulse(true);
+
+    window.setTimeout(() => {
+      setUnlockPulse(false);
+    }, 1200);
   }
 
   return (
     <section className="mb-8 mt-2">
       <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-10">
+        <div className="pointer-events-none absolute left-0 top-2 h-28 w-36 rounded-full bg-orange-500/10 blur-3xl sm:left-8" />
         <div
-          ref={timelineRef}
-          className="relative cursor-grab active:cursor-grabbing"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-        >
-          <div className="h-5 w-full overflow-hidden rounded-full border border-white/10 bg-[#1f2d45]" />
+          className={[
+            "pointer-events-none absolute right-2 top-8 h-24 w-48 rounded-full blur-3xl transition duration-700",
+            mainStoryComplete
+              ? "bg-blue-500/10 opacity-100"
+              : "bg-blue-500/5 opacity-40",
+          ].join(" ")}
+        />
+
+        <div className="relative">
+          <div className="absolute -inset-x-2 top-1/2 h-12 -translate-y-1/2 rounded-full bg-gradient-to-r from-orange-500/10 via-white/[0.03] to-blue-500/10 blur-2xl" />
 
           <div
-            className="absolute left-0 top-0 h-5 rounded-full bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-300 shadow-[0_0_24px_rgba(249,115,22,0.55)] transition-all duration-200"
-            style={{ width: `${displayedMainFillPercent}%` }}
+            className={[
+              "relative h-5 w-full overflow-hidden rounded-full border border-white/10 bg-[#1f2d45] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_10px_35px_rgba(0,0,0,0.35)] transition duration-700",
+              unlockPulse ? "scale-[1.015]" : "scale-100",
+            ].join(" ")}
           />
 
-          {borutoUnlocked && displayedBorutoFillPercent > 0 && (
+          {mainStoryComplete && borutoUnlocked && (
             <div
-              className="absolute top-0 h-5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-sky-300 shadow-[0_0_24px_rgba(59,130,246,0.4)] transition-all duration-200"
+              className="absolute top-0 h-5 rounded-r-full bg-blue-500/10 transition-all duration-700"
               style={{
                 left: `${mainSegmentPercent}%`,
-                width: `${displayedBorutoFillPercent}%`,
+                width: `${100 - mainSegmentPercent}%`,
               }}
             />
           )}
 
+          <div
+            className="absolute left-0 top-0 h-5 rounded-full bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-300 shadow-[0_0_26px_rgba(249,115,22,0.62)] transition-all duration-700"
+            style={{ width: `${displayedMainFillPercent}%` }}
+          />
+
+          {mainStoryComplete && borutoUnlocked && (
+            <div
+              className="absolute top-0 h-5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-sky-300 shadow-[0_0_24px_rgba(59,130,246,0.42)] transition-all duration-700"
+              style={{
+                left: `${mainSegmentPercent}%`,
+                width: `${Math.max(displayedBorutoFillPercent, 0.8)}%`,
+              }}
+            />
+          )}
+
+          {mainStoryComplete && !borutoUnlocked && (
+            <div className="absolute right-0 top-0 h-5 w-14 rounded-full bg-gradient-to-r from-transparent via-blue-500/20 to-blue-400/40 shadow-[0_0_24px_rgba(59,130,246,0.28)]" />
+          )}
+
           <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-2">
             {Array.from({ length: 18 }).map((_, i) => (
-              <div key={i} className="h-2 w-2 rounded-full bg-white/10" />
+              <div
+                key={i}
+                className="h-2 w-2 rounded-full bg-white/10 shadow-[0_0_8px_rgba(255,255,255,0.08)]"
+              />
             ))}
           </div>
 
           <div
-            className="absolute top-1/2 -translate-x-1/2 -translate-y-[72%] transition-all duration-150"
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-[76%] transition-all duration-700"
             style={{ left: `${markerPercent}%` }}
           >
             <div className="relative flex items-center justify-center">
               <div
-                className={`absolute h-20 w-20 rounded-full blur-2xl ${
-                  isBorutoZone ? "bg-blue-500/20" : "bg-orange-500/25"
+                className={`absolute h-24 w-24 rounded-full blur-2xl ${
+                  isBorutoStageActive ? "bg-blue-500/20" : "bg-orange-500/30"
                 }`}
               />
               <div
-                className={`absolute -left-8 top-8 h-3 w-12 rounded-full blur-md ${
-                  isBorutoZone ? "bg-blue-400/25" : "bg-orange-400/30"
+                className={`absolute -left-8 top-8 h-3 w-14 rounded-full blur-md ${
+                  isBorutoStageActive ? "bg-blue-400/25" : "bg-orange-400/35"
                 }`}
               />
 
@@ -478,87 +494,29 @@ export default function StoryTimeline() {
           </div>
         </div>
 
-        <div
-          className={[
-            "mt-8 rounded-2xl border p-5 transition duration-300",
-            mainStoryComplete && !borutoUnlocked
-              ? "border-orange-400/20 bg-orange-500/[0.08] shadow-[0_0_0_1px_rgba(249,115,22,0.12),0_14px_40px_rgba(249,115,22,0.10)]"
-              : "border-white/10 bg-white/[0.02]",
-          ].join(" ")}
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative">
-              {mainStoryComplete && !borutoUnlocked && (
-                <>
-                  <span className="pointer-events-none absolute -left-2 -top-2 h-16 w-16 rounded-full bg-orange-400/10 blur-2xl" />
-                  <span className="pointer-events-none absolute left-6 top-1 h-10 w-10 rounded-full border border-orange-300/25 animate-ping" />
-                </>
-              )}
+        {mainStoryComplete && !borutoUnlocked ? (
+          <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-4 text-center">
+            <p className="text-sm font-medium leading-6 text-white/60 sm:text-base">
+              Main Naruto path complete. A new path is ready.
+            </p>
 
-              <p className="relative text-base font-medium text-white">
-                {isPreviewing
-                  ? "Preview mode is active. Drag or use the slider to test the full Naruto timeline."
-                  : !borutoUnlocked
-                    ? "Mark each canon arc complete to move Naruto through Part 1 and Shippuden."
-                    : "The main story is complete. Boruto is now unlocked as an extra path."}
-              </p>
-
-              <p className="relative mt-1 text-sm text-gray-500">
-                {isPreviewing
-                  ? `${narutoStage.label} • preview checkpoint ${previewIndex} of ${activeTimelineSteps.length}`
-                  : !borutoUnlocked
-                    ? "Boruto stays hidden until you finish the main Naruto watch program."
-                    : "Keep going only if you want the continuation."}
-              </p>
-            </div>
-
-            {isPreviewing && (
-              <button
-                type="button"
-                onClick={resetPreview}
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-medium text-gray-200 transition hover:border-white/20 hover:bg-white/[0.06]"
-              >
-                Reset preview
-              </button>
-            )}
-          </div>
-
-          <div className="mt-5">
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={0.1}
-              value={controlledPercent}
-              onChange={handleSliderChange}
-              className="w-full cursor-pointer accent-orange-400"
-            />
-          </div>
-        </div>
-
-        {mainStoryComplete && !borutoUnlocked && (
-          <div className="mt-5 flex justify-center">
             <button
               type="button"
               onClick={unlockBorutoPath}
-              className="group relative isolate inline-flex items-center justify-center overflow-hidden rounded-full border border-orange-400/30 bg-orange-500/10 px-6 py-3 text-sm font-semibold text-orange-100 transition hover:border-orange-300/40 hover:bg-orange-500/15 hover:shadow-[0_0_0_1px_rgba(249,115,22,0.12),0_14px_40px_rgba(249,115,22,0.18)]"
+              className="group relative overflow-hidden rounded-full border border-blue-400/40 bg-blue-500/15 px-6 py-3 text-sm font-bold uppercase tracking-[0.16em] text-blue-100 shadow-[0_0_28px_rgba(59,130,246,0.18)] transition duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-500/25 active:translate-y-0 active:scale-[0.98]"
             >
-              <span className="pointer-events-none absolute inset-0 opacity-100">
-                <span className="absolute inset-0 rounded-full border border-orange-300/20 animate-pulse" />
-                <span className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-400/10 blur-2xl" />
-                <span className="absolute left-0 top-0 h-full w-1/3 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md transition-transform duration-700 group-hover:translate-x-[300%]" />
+              <span className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
+                <span className="absolute left-0 top-0 h-full w-1/3 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent blur-md transition-transform duration-700 group-hover:translate-x-[300%]" />
               </span>
-
-              <span className="relative z-10 flex items-center gap-2">
-                <span className="transition-transform duration-300 group-hover:scale-105">
-                  Unlock Boruto path
-                </span>
-                <span className="transition-transform duration-300 group-hover:translate-x-1">
-                  →
-                </span>
-              </span>
+              <span className="relative z-10">Unlock Boruto Path</span>
             </button>
           </div>
+        ) : (
+          <p className="mx-auto mt-8 max-w-3xl text-center text-sm font-medium leading-6 text-white/55 sm:text-base">
+            {mainStoryComplete
+              ? "Boruto is open as an optional path."
+              : "Mark each canon arc complete to move Naruto through the journey."}
+          </p>
         )}
       </div>
     </section>
