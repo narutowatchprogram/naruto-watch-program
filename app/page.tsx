@@ -19,7 +19,7 @@ export default function Home() {
           </p>
 
           <h1 className="mb-6 text-5xl font-black leading-[0.95] tracking-tight text-white md:text-7xl">
-            How to watch the Naruto Anime
+            Obi i made it
           </h1>
 
           <p className="mx-auto mb-5 max-w-3xl text-lg leading-8 text-gray-300 md:text-xl">
