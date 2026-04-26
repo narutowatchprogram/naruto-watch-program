@@ -21,9 +21,9 @@ export default function GuidePage() {
                 Spoiler warning
               </p>
               <p className="mt-2 text-sm leading-6 text-gray-200">
-                Do not engage with Naruto content online. No memes, arcs,
-                openings, clips, rankings, or theories. And do not trust people
-                who already know the series. It's life and death tbh.
+                Avoid Naruto content online while watching. Memes, clips,
+                rankings, openings, theories, and even friends can spoil major
+                moments fast. It&apos;s life and death tbh.
               </p>
             </div>
           </section>
@@ -40,8 +40,7 @@ export default function GuidePage() {
               <a href="#watch-flow" className="group block">
                 <p className="text-sm font-bold text-white">New viewer</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  Follow the main path, watch mixed canon, ignore the rest for
-                  now.
+                  Follow the main path and save extras for later.
                 </p>
                 <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-green-300 transition group-hover:text-green-200">
                   Jump to watch flow →
@@ -51,8 +50,7 @@ export default function GuidePage() {
               <a href="#labels" className="group block">
                 <p className="text-sm font-bold text-white">Returning viewer</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  Use this guide to clean up your route and avoid random filler
-                  detours.
+                  Clean up your route and avoid filler detours.
                 </p>
                 <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-yellow-300 transition group-hover:text-yellow-200">
                   Jump to labels →
@@ -62,8 +60,7 @@ export default function GuidePage() {
               <a href="#optional-content" className="group block">
                 <p className="text-sm font-bold text-white">Finishing the run</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  After the core story, go back for optional arcs, novels, and
-                  recommended filler.
+                  Come back for optional arcs, novels, and recommended filler.
                 </p>
                 <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-300 transition group-hover:text-blue-200">
                   Jump to optional content →
@@ -80,61 +77,27 @@ export default function GuidePage() {
               The simple path
             </h2>
   
-            <div className="mt-6 flex flex-col gap-3 text-sm sm:flex-row sm:items-center">
-              <div className="sm:flex-1">
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-green-400/15 bg-green-400/[0.04] p-4">
                 <p className="font-bold text-green-300">Main Path</p>
-                <p className="mt-1 leading-6 text-gray-300">Manga canon first</p>
+                <p className="mt-2 text-sm leading-6 text-gray-300">
+                  Core story. Your progress follows this.
+                </p>
               </div>
   
-              <div className="hidden text-gray-500 sm:block">→</div>
-  
-              <div className="sm:flex-1">
+              <div className="rounded-2xl border border-yellow-300/15 bg-yellow-300/[0.04] p-4">
                 <p className="font-bold text-yellow-300">Mixed Canon</p>
-                <p className="mt-1 leading-6 text-gray-300">
-                  Watch it. Important material is here.
+                <p className="mt-2 text-sm leading-6 text-gray-300">
+                  Canon with anime additions. Still watch it.
                 </p>
               </div>
   
-              <div className="hidden text-gray-500 sm:block">→</div>
-  
-              <div className="sm:flex-1">
+              <div className="rounded-2xl border border-blue-300/15 bg-blue-300/[0.04] p-4">
                 <p className="font-bold text-blue-300">Optional Later</p>
-                <p className="mt-1 leading-6 text-gray-300">
-                  Filler, novels, and extras after the core story
+                <p className="mt-2 text-sm leading-6 text-gray-300">
+                  Filler, novels, and extras after the story.
                 </p>
               </div>
-            </div>
-          </section>
-  
-          <section className="mb-14 grid gap-7 sm:grid-cols-3">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                1
-              </p>
-              <h2 className="mt-2 text-lg font-black">Follow the main path</h2>
-              <p className="mt-2 text-sm leading-6 text-gray-300">
-                Manga canon drives the core experience and your progress.
-              </p>
-            </div>
-  
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                2
-              </p>
-              <h2 className="mt-2 text-lg font-black">Watch mixed canon</h2>
-              <p className="mt-2 text-sm leading-6 text-gray-300">
-                Do not skip these. They can contain important story material.
-              </p>
-            </div>
-  
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                3
-              </p>
-              <h2 className="mt-2 text-lg font-black">Save extras for later</h2>
-              <p className="mt-2 text-sm leading-6 text-gray-300">
-                Optional content is best after the main story, not during it.
-              </p>
             </div>
           </section>
   
@@ -149,34 +112,32 @@ export default function GuidePage() {
             <div className="mt-6 space-y-5 text-sm leading-6 text-gray-300">
               <p>
                 <span className="font-bold text-white">Rule 1:</span> Avoid
-                Naruto content online completely while watching. Social algorithms
-                will catch up and quickly cook you.
+                Naruto content online. Social algorithms will catch up and cook
+                you fast.
               </p>
               <p>
-                <span className="font-bold text-white">Rule 2:</span> Be weary of
-                Naruto friends. Only discuss something after it is finished.
+                <span className="font-bold text-white">Rule 2:</span> Be wary of
+                Naruto friends. Only discuss something after you finish it.
               </p>
               <p>
                 <span className="font-bold text-white">Rule 3:</span> Try not to
-                look at episode titles. Arc titles on the program are slightly
-                tweaked to protect the first view.
+                look at episode titles. Arc titles here are slightly tweaked for
+                first-time viewers.
               </p>
               <p>
                 <span className="font-bold text-white">Rule 4:</span> If
-                something feels off, you may be in filler. Filler usually breaks
-                pacing or pulls away from the real story. Mixed canon is
-                different. Still watch mixed canon.
+                something feels off, you may be in filler. Mixed canon is
+                different and should still be watched.
               </p>
               <p>
-                <span className="font-bold text-white">Rule 5:</span> You are not
-                missing any real content by skipping filler so keep the FOMO in
-                check.
+                <span className="font-bold text-white">Rule 5:</span> Skipping
+                filler does not mean missing the real story. It protects the
+                pacing.
               </p>
               <p className="border-l border-blue-400/40 pl-4">
-                <span className="font-bold text-white">Rule 6:</span> Japanese
-                voice acting (sub) is highly recommended. The sub usually hits
-                harder, but dub (English) is still fine if you have a strong
-                preference.
+                <span className="font-bold text-white">Rule 6:</span> Sub (Japanese) is highly
+                recommended, but dub (English) is fine if that is
+                your preference.
               </p>
             </div>
           </section>
@@ -189,43 +150,38 @@ export default function GuidePage() {
               Watch them when they are safe
             </h2>
             <p className="mt-3 text-sm leading-6 text-gray-400">
-              Naruto openings (intro theme montages) are part of the experience.
-              The issue is that a lot of them show fights, forms, or future
-              matchups early. The safest rule is simple: if you are mid-arc, skip
-              the opening and come back to it after you finish that arc.
+              Naruto openings are part of the experience, but many show future
+              fights, forms, or matchups early. If you are mid-arc, skip the
+              opening and come back after finishing that arc.
             </p>
   
             <div className="mt-7 grid gap-6 sm:grid-cols-2">
               <div>
                 <p className="font-bold text-white">Good default rule</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  If you are in the middle of an arc, skip the opening. Once you
-                  finish that arc, go back and watch it.
+                  Skip openings during an arc. Watch them after the arc ends.
                 </p>
               </div>
   
               <div>
                 <p className="font-bold text-white">Why</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  Community consensus is that Naruto and especially Shippuden
-                  openings can get very spoiler-heavy once an arc is underway.
+                  Naruto and especially Shippuden openings can get spoiler-heavy
+                  once an arc is underway.
                 </p>
               </div>
   
               <div>
                 <p className="font-bold text-white">Usually safe</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  Early Part 1 and the very start of a new major section are
-                  usually safer. If an opening is brand new and you have not
-                  really started that arc yet, you are normally fine.
+                  Early Part 1 and the start of a major section are usually safer.
                 </p>
               </div>
   
               <div>
                 <p className="font-bold text-white">Be more careful</p>
                 <p className="mt-2 text-sm leading-6 text-gray-300">
-                  Mid-arc and late-arc openings are where Naruto tends to show
-                  spoilers too early.
+                  Mid-arc and late-arc openings are where spoilers show up most.
                 </p>
               </div>
             </div>
@@ -239,10 +195,9 @@ export default function GuidePage() {
                 <div>
                   <p className="font-bold text-white">Naruto Part 1</p>
                   <p className="mt-1 text-sm leading-6 text-gray-300">
-                    Openings are less dangerous early on, but once you are in the
-                    back half of Chunin Exams, Konoha Crush, or Sasuke Retrieval,
-                    skip the opening until you finish that arc. But honestly, you
-                    can get away with watching all of part 1 openings.
+                    Openings are less dangerous early on. Be more careful during
+                    Chunin Exams, Konoha Crush, and Sasuke Retrieval, but Part 1 is
+                    generally manageable.
                   </p>
                 </div>
   
@@ -251,10 +206,8 @@ export default function GuidePage() {
                     Shippuden: Akatsuki Suppression through Pain
                   </p>
                   <p className="mt-1 text-sm leading-6 text-gray-300">
-                    Skip these at all costs. This is where fans most often start
-                    calling out spoiler openings. Be strict here. Skip openings
-                    during the Itachi / Jiraiya / Pain stretch and watch them
-                    after each arc instead.
+                    Be strict here. Skip openings during the Itachi / Jiraiya /
+                    Pain stretch and watch them after each arc instead.
                   </p>
                 </div>
   
@@ -263,9 +216,8 @@ export default function GuidePage() {
                     Shippuden: Five Kage Summit onward
                   </p>
                   <p className="mt-1 text-sm leading-6 text-gray-300">
-                    Once the story enters the late-game, openings become much
-                    riskier. Assume they can show major future matchups and save
-                    them until after the arc.
+                    Late-game openings can show major future matchups. Save them
+                    until after the arc.
                   </p>
                 </div>
   
@@ -274,9 +226,7 @@ export default function GuidePage() {
                     Shippuden: Fourth Great Ninja War
                   </p>
                   <p className="mt-1 text-sm leading-6 text-gray-300">
-                    This is the highest-risk section by far. Treat war-era
-                    openings as spoiler land. Skip them during the arc and come
-                    back later.
+                    Highest-risk section. Treat war-era openings as spoiler land.
                   </p>
                 </div>
               </div>
@@ -288,8 +238,6 @@ export default function GuidePage() {
               </p>
               <p className="mt-2 text-sm leading-6 text-gray-300">
                 Finish an arc, then go back and watch its opening right after.
-                That way you still get the music and visuals without letting the
-                opening leak future moments into your first run.
               </p>
             </div>
           </section>
@@ -316,8 +264,7 @@ export default function GuidePage() {
                   <div>
                     <p className="font-bold text-white">Mixed canon</p>
                     <p className="text-sm leading-6 text-gray-300">
-                      Watch it. These sections mix real story material with
-                      anime-added material, so skipping them can be messy.
+                      Real story material with anime additions. Watch these.
                     </p>
                   </div>
                 </div>
@@ -329,7 +276,7 @@ export default function GuidePage() {
                       Anime canon / novel adaptation
                     </p>
                     <p className="text-sm leading-6 text-gray-300">
-                      Optional. Some are worth it, but they do not define
+                      Optional. Worth checking out later, but not required for
                       completion.
                     </p>
                   </div>
@@ -340,8 +287,7 @@ export default function GuidePage() {
                   <div>
                     <p className="font-bold text-white">Filler</p>
                     <p className="text-sm leading-6 text-gray-300">
-                      Skip on your first clean run. This is anime-added material
-                      outside the main story path.
+                      Skip on your first clean run.
                     </p>
                   </div>
                 </div>
@@ -378,20 +324,16 @@ export default function GuidePage() {
   
               <div className="mt-4 space-y-3 text-sm leading-6 text-gray-300">
                 <p>
-                  <span className="font-bold text-white">Canon</span> = story
-                  from the manga or the author-backed main story.
+                  <span className="font-bold text-white">Canon</span> = the main
+                  story from the manga or author-backed material.
                 </p>
                 <p>
                   <span className="font-bold text-white">Filler</span> =
                   anime-added material outside the main story path.
                 </p>
                 <p>
-                  Filler existed because older weekly anime had to buy time while
-                  the manga stayed ahead.
-                </p>
-                <p>
-                  That is why skipping filler now does not mean missing the real
-                  story. It means cutting out pacing problems.
+                  Skipping filler protects pacing. It does not cut out the real
+                  story.
                 </p>
               </div>
             </div>
@@ -404,12 +346,8 @@ export default function GuidePage() {
               <div className="mt-4 space-y-3 text-sm leading-6 text-gray-300">
                 <p>Watch all mixed canon during your main run.</p>
                 <p>
-                  Save most optional material for later so it adds to the
-                  experience instead of breaking momentum.
-                </p>
-                <p>
-                  Some filler is genuinely fun and worth seeing later when placed
-                  intentionally.
+                  Save optional material for later so it adds to the experience
+                  instead of breaking momentum.
                 </p>
                 <p>
                   Come back for extras after the core story if you want the fuller
@@ -424,7 +362,9 @@ export default function GuidePage() {
   
             <div className="mt-5 grid gap-6 sm:grid-cols-2">
               <div>
-                <p className="font-bold text-white">What counts toward progress?</p>
+                <p className="font-bold text-white">
+                  What counts toward progress?
+                </p>
                 <p className="mt-1 text-sm leading-6 text-gray-300">
                   Main-path manga canon.
                 </p>

@@ -168,11 +168,16 @@ export default function ResumeButtons() {
 
       setMainComplete(narutoComplete && shippudenComplete);
 
-      if (nextNarutoStep) {
+      // ✅ FIXED LOGIC
+
+      // Naruto
+      if (completedNaruto.size === 0) {
+        setNarutoHref("/program");
+        setNarutoLabel("Start Naruto");
+        setNarutoSub("Land of Waves");
+      } else if (nextNarutoStep) {
         setNarutoHref(`/program/${nextNarutoStep.slug}`);
-        setNarutoLabel(
-          completedNaruto.size > 0 ? "Continue Naruto" : "Start Naruto"
-        );
+        setNarutoLabel("Continue Naruto");
         setNarutoSub(nextNarutoStep.title);
       } else {
         setNarutoHref("/program");
@@ -180,11 +185,14 @@ export default function ResumeButtons() {
         setNarutoSub("");
       }
 
-      if (nextShippudenStep) {
+      // Shippuden
+      if (completedShippuden.size === 0) {
+        setShippudenHref("/shippuden");
+        setShippudenLabel("Go to Shippuden");
+        setShippudenSub("Kazekage Rescue");
+      } else if (nextShippudenStep) {
         setShippudenHref(`/shippuden/${nextShippudenStep.slug}`);
-        setShippudenLabel(
-          completedShippuden.size > 0 ? "Continue Shippuden" : "Go to Shippuden"
-        );
+        setShippudenLabel("Continue Shippuden");
         setShippudenSub(nextShippudenStep.title);
       } else {
         setShippudenHref("/shippuden");
@@ -213,10 +221,6 @@ export default function ResumeButtons() {
           href={narutoHref}
           className="group relative overflow-hidden rounded-[1.75rem] border border-orange-500/30 bg-orange-500/10 p-5 text-center shadow-[0_14px_45px_rgba(249,115,22,0.10)] transition-all duration-200 hover:-translate-y-1 hover:border-orange-400/50 hover:bg-orange-500/[0.14] active:translate-y-0 active:scale-[0.99]"
         >
-          <span className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
-            <span className="absolute left-0 top-0 h-full w-1/3 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md transition-transform duration-700 group-hover:translate-x-[300%]" />
-          </span>
-
           <div className="relative z-10">
             <p className="text-xs font-bold uppercase tracking-wide text-orange-300">
               Main path
@@ -238,10 +242,6 @@ export default function ResumeButtons() {
           href={shippudenHref}
           className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 text-center shadow-[0_14px_45px_rgba(0,0,0,0.35)] transition-all duration-200 hover:-translate-y-1 hover:border-orange-400/40 hover:bg-white/[0.06] active:translate-y-0 active:scale-[0.99]"
         >
-          <span className="pointer-events-none absolute inset-0 opacity-0 transition duration-300 group-hover:opacity-100">
-            <span className="absolute left-0 top-0 h-full w-1/3 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md transition-transform duration-700 group-hover:translate-x-[300%]" />
-          </span>
-
           <div className="relative z-10">
             <p className="text-xs font-bold uppercase tracking-wide text-orange-300">
               Next phase
@@ -270,10 +270,10 @@ export default function ResumeButtons() {
 
         <Link
           href="/boruto"
-          className={`rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] ${
+          className={`rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-200 ${
             mainComplete
-              ? "border-blue-400 bg-blue-500/15 text-blue-200 hover:bg-blue-500/25"
-              : "border-blue-500/30 bg-blue-500/10 text-blue-200 hover:border-blue-400 hover:bg-blue-500/15"
+              ? "border-blue-400 bg-blue-500/15 text-blue-200"
+              : "border-blue-500/30 bg-blue-500/10 text-blue-200"
           }`}
         >
           Boruto
@@ -283,7 +283,7 @@ export default function ResumeButtons() {
       {hasProgress && (
         <button
           onClick={handleReset}
-          className="text-xs text-gray-500 underline transition-all duration-200 hover:text-red-400 active:scale-[0.98]"
+          className="text-xs text-gray-500 underline transition-all duration-200 hover:text-red-400"
         >
           Reset progress
         </button>

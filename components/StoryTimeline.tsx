@@ -390,12 +390,22 @@ export default function StoryTimeline() {
 
     window.setTimeout(() => {
       setUnlockPulse(false);
-    }, 1200);
+    }, 1400);
+  }
+
+  function returnToMainTimeline() {
+    window.localStorage.removeItem(BORUTO_UNLOCK_KEY);
+    setBorutoUnlocked(false);
+    setUnlockPulse(true);
+
+    window.setTimeout(() => {
+      setUnlockPulse(false);
+    }, 1000);
   }
 
   return (
-    <section className="mb-8 mt-2">
-      <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-10">
+    <section id="story-timeline" className="mb-8 mt-2 scroll-mt-20">
+      <div className="relative mx-auto max-w-6xl px-3 pb-8 pt-12 sm:px-4 sm:pt-10">
         <div className="pointer-events-none absolute left-0 top-2 h-28 w-36 rounded-full bg-orange-500/10 blur-3xl sm:left-8" />
         <div
           className={[
@@ -406,95 +416,116 @@ export default function StoryTimeline() {
           ].join(" ")}
         />
 
-        <div className="relative">
-          <div className="absolute -inset-x-2 top-1/2 h-12 -translate-y-1/2 rounded-full bg-gradient-to-r from-orange-500/10 via-white/[0.03] to-blue-500/10 blur-2xl" />
+        <div
+          className={[
+            "relative rounded-[1.75rem] border border-white/10 bg-white/[0.025] px-3 py-7 shadow-[0_18px_60px_rgba(0,0,0,0.3)] transition duration-700 sm:rounded-[2rem] sm:px-5 sm:py-8",
+            unlockPulse
+              ? "scale-[1.01] border-orange-300/35 shadow-[0_0_38px_rgba(249,115,22,0.18),0_18px_60px_rgba(0,0,0,0.35)]"
+              : "scale-100",
+          ].join(" ")}
+        >
+          <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-          <div
-            className={[
-              "relative h-5 w-full overflow-hidden rounded-full border border-white/10 bg-[#1f2d45] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_10px_35px_rgba(0,0,0,0.35)] transition duration-700",
-              unlockPulse ? "scale-[1.015]" : "scale-100",
-            ].join(" ")}
-          />
+          <div className="relative">
+            <div className="absolute -inset-x-2 top-1/2 h-12 -translate-y-1/2 rounded-full bg-gradient-to-r from-orange-500/10 via-white/[0.03] to-blue-500/10 blur-2xl" />
 
-          {mainStoryComplete && borutoUnlocked && (
             <div
-              className="absolute top-0 h-5 rounded-r-full bg-blue-500/10 transition-all duration-700"
-              style={{
-                left: `${mainSegmentPercent}%`,
-                width: `${100 - mainSegmentPercent}%`,
-              }}
+              className={[
+                "relative h-5 w-full overflow-hidden rounded-full border border-white/10 bg-[#1f2d45] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_10px_35px_rgba(0,0,0,0.35)] transition duration-700 sm:h-5",
+                unlockPulse ? "scale-[1.015]" : "scale-100",
+              ].join(" ")}
             />
-          )}
 
-          <div
-            className="absolute left-0 top-0 h-5 rounded-full bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-300 shadow-[0_0_26px_rgba(249,115,22,0.62)] transition-all duration-700"
-            style={{ width: `${displayedMainFillPercent}%` }}
-          />
+            {mainStoryComplete && borutoUnlocked && (
+              <div
+                className="absolute top-0 h-5 rounded-r-full bg-blue-500/10 transition-all duration-700"
+                style={{
+                  left: `${mainSegmentPercent}%`,
+                  width: `${100 - mainSegmentPercent}%`,
+                }}
+              />
+            )}
 
-          {mainStoryComplete && borutoUnlocked && (
             <div
-              className="absolute top-0 h-5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-sky-300 shadow-[0_0_24px_rgba(59,130,246,0.42)] transition-all duration-700"
-              style={{
-                left: `${mainSegmentPercent}%`,
-                width: `${Math.max(displayedBorutoFillPercent, 0.8)}%`,
-              }}
+              className="absolute left-0 top-0 h-5 rounded-full bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-300 shadow-[0_0_26px_rgba(249,115,22,0.62)] transition-all duration-700"
+              style={{ width: `${displayedMainFillPercent}%` }}
             />
-          )}
 
-          {mainStoryComplete && !borutoUnlocked && (
-            <div className="absolute right-0 top-0 h-5 w-14 rounded-full bg-gradient-to-r from-transparent via-blue-500/20 to-blue-400/40 shadow-[0_0_24px_rgba(59,130,246,0.28)]" />
-          )}
-
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-2">
-            {Array.from({ length: 18 }).map((_, i) => (
+            {mainStoryComplete && borutoUnlocked && (
               <div
-                key={i}
-                className="h-2 w-2 rounded-full bg-white/10 shadow-[0_0_8px_rgba(255,255,255,0.08)]"
+                className="absolute top-0 h-5 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-sky-300 shadow-[0_0_24px_rgba(59,130,246,0.42)] transition-all duration-700"
+                style={{
+                  left: `${mainSegmentPercent}%`,
+                  width: `${Math.max(displayedBorutoFillPercent, 0.8)}%`,
+                }}
               />
-            ))}
-          </div>
+            )}
 
-          <div
-            className="absolute top-1/2 -translate-x-1/2 -translate-y-[76%] transition-all duration-700"
-            style={{ left: `${markerPercent}%` }}
-          >
-            <div className="relative flex items-center justify-center">
-              <div
-                className={`absolute h-24 w-24 rounded-full blur-2xl ${
-                  isBorutoStageActive ? "bg-blue-500/20" : "bg-orange-500/30"
-                }`}
-              />
-              <div
-                className={`absolute -left-8 top-8 h-3 w-14 rounded-full blur-md ${
-                  isBorutoStageActive ? "bg-blue-400/25" : "bg-orange-400/35"
-                }`}
-              />
+            {mainStoryComplete && !borutoUnlocked && (
+              <div className="absolute right-0 top-0 h-5 w-14 rounded-full bg-gradient-to-r from-transparent via-blue-500/20 to-blue-400/40 shadow-[0_0_24px_rgba(59,130,246,0.28)]" />
+            )}
 
-              <div className="relative animate-bounce">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-2">
+              {Array.from({ length: 18 }).map((_, i) => (
                 <div
-                  style={{
-                    width: `${narutoStage.boxSize}px`,
-                    height: `${narutoStage.boxSize}px`,
-                  }}
-                  className="relative"
+                  key={i}
+                  className={[
+                    "rounded-full bg-white/10 shadow-[0_0_8px_rgba(255,255,255,0.08)]",
+                    i % 3 === 0 ? "h-2.5 w-2.5" : "h-1.5 w-1.5",
+                  ].join(" ")}
+                />
+              ))}
+            </div>
+
+            <div
+              className="absolute top-1/2 -translate-x-1/2 -translate-y-[76%] transition-all duration-700"
+              style={{ left: `${markerPercent}%` }}
+            >
+              <div className="relative flex items-center justify-center">
+                <div
+                  className={[
+                    "absolute h-24 w-24 rounded-full blur-2xl transition duration-500",
+                    isBorutoStageActive ? "bg-blue-500/20" : "bg-orange-500/30",
+                    unlockPulse ? "scale-125 opacity-100" : "scale-100 opacity-80",
+                  ].join(" ")}
+                />
+                <div
+                  className={`absolute -left-8 top-8 h-3 w-14 rounded-full blur-md ${
+                    isBorutoStageActive ? "bg-blue-400/25" : "bg-orange-400/35"
+                  }`}
+                />
+
+                <div
+                  className={[
+                    "relative animate-bounce rounded-full transition duration-500 hover:scale-105 active:scale-95",
+                    unlockPulse ? "scale-110" : "scale-100",
+                  ].join(" ")}
                 >
-                  <Image
-                    key={`${narutoStage.key}-${narutoStage.src}`}
-                    src={narutoStage.src}
-                    alt={narutoStage.alt}
-                    fill
-                    sizes={`${narutoStage.boxSize}px`}
-                    priority
-                    unoptimized
-                    className={`-scale-x-100 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.55)] ${narutoStage.imageScale}`}
-                  />
+                  <div
+                    style={{
+                      width: `${narutoStage.boxSize}px`,
+                      height: `${narutoStage.boxSize}px`,
+                    }}
+                    className="relative"
+                  >
+                    <Image
+                      key={`${narutoStage.key}-${narutoStage.src}`}
+                      src={narutoStage.src}
+                      alt={narutoStage.alt}
+                      fill
+                      sizes={`${narutoStage.boxSize}px`}
+                      priority
+                      unoptimized
+                      className={`-scale-x-100 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.55)] ${narutoStage.imageScale}`}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {mainStoryComplete && !borutoUnlocked ? (
+        {mainStoryComplete && !borutoUnlocked && (
           <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-4 text-center">
             <p className="text-sm font-medium leading-6 text-white/60 sm:text-base">
               Main Naruto path complete. A new path is ready.
@@ -511,11 +542,27 @@ export default function StoryTimeline() {
               <span className="relative z-10">Unlock Boruto Path</span>
             </button>
           </div>
-        ) : (
+        )}
+
+        {mainStoryComplete && borutoUnlocked && (
+          <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center gap-4 text-center">
+            <p className="text-sm font-medium leading-6 text-white/55 sm:text-base">
+              Boruto is open as an optional path.
+            </p>
+
+            <button
+              type="button"
+              onClick={returnToMainTimeline}
+              className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white/60 transition duration-200 hover:-translate-y-0.5 hover:border-orange-400/35 hover:bg-orange-500/10 hover:text-orange-100 active:translate-y-0 active:scale-[0.98]"
+            >
+              Return to Main Timeline
+            </button>
+          </div>
+        )}
+
+        {!mainStoryComplete && (
           <p className="mx-auto mt-8 max-w-3xl text-center text-sm font-medium leading-6 text-white/55 sm:text-base">
-            {mainStoryComplete
-              ? "Boruto is open as an optional path."
-              : "Mark each canon arc complete to move Naruto through the journey."}
+            Mark each canon arc complete to move Naruto through the journey.
           </p>
         )}
       </div>

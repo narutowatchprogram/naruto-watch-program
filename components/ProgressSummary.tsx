@@ -110,6 +110,7 @@ function getProgressMessage(ratio: number) {
     return {
       title: "You’re at the start",
       body: "Mark canon arcs complete as you go to move the story forward.",
+      status: "Ready",
     };
   }
 
@@ -117,6 +118,7 @@ function getProgressMessage(ratio: number) {
     return {
       title: "You’re moving",
       body: "Early progress is in. Keep the momentum going.",
+      status: "Journey started",
     };
   }
 
@@ -124,6 +126,7 @@ function getProgressMessage(ratio: number) {
     return {
       title: "You’re deep in it",
       body: "The main story is opening up now.",
+      status: "In progress",
     };
   }
 
@@ -131,6 +134,7 @@ function getProgressMessage(ratio: number) {
     return {
       title: "You’re in the heart of the story",
       body: "This is where a lot of the payoff starts stacking up.",
+      status: "In progress",
     };
   }
 
@@ -138,12 +142,14 @@ function getProgressMessage(ratio: number) {
     return {
       title: "You’re closing in",
       body: "The finish line is starting to show.",
+      status: "Almost there",
     };
   }
 
   return {
     title: "Main path complete",
     body: "You finished the canon story path for this section.",
+    status: "Complete",
   };
 }
 
@@ -228,15 +234,8 @@ export default function ProgressSummary({
               accent.badgeText,
             ].join(" ")}
           >
-            {percentage}%
+            {progress.status}
           </div>
-        </div>
-
-        <div className="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">
-          <span>
-            {completedCount} of {totalSteps} complete
-          </span>
-          <span>{ratio === 1 ? "Finished" : "In progress"}</span>
         </div>
 
         <div className="h-3 overflow-hidden rounded-full bg-[#1f2d45]">

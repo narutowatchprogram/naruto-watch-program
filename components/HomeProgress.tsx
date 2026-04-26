@@ -13,6 +13,12 @@ type SavedProgressItem = {
 
 const STORAGE_KEY = "naruto-watch-program-progress";
 
+function getStatus(percent: number) {
+  if (percent <= 0) return "Ready to start";
+  if (percent < 100) return "In progress";
+  return "Complete";
+}
+
 export default function HomeProgress() {
   const [narutoDone, setNarutoDone] = useState(0);
   const [shippudenDone, setShippudenDone] = useState(0);
@@ -41,38 +47,38 @@ export default function HomeProgress() {
         <p className="mb-2 text-sm uppercase tracking-wide text-orange-300">
           Naruto
         </p>
+
         <div className="mb-3 flex items-center justify-between gap-4">
           <h2 className="text-2xl font-semibold">Part 1</h2>
-          <p className="text-sm text-gray-300">
-            {narutoDone} / {steps.length}
-          </p>
+          <p className="text-sm text-gray-300">{getStatus(narutoPercent)}</p>
         </div>
+
         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-800">
           <div
             className="h-full rounded-full bg-orange-500 transition-all duration-300"
             style={{ width: `${narutoPercent}%` }}
           />
         </div>
-        <p className="mt-3 text-sm text-gray-400">{narutoPercent}% through</p>
       </div>
 
       <div className="rounded-2xl border border-gray-800 bg-white/5 p-6">
         <p className="mb-2 text-sm uppercase tracking-wide text-orange-300">
           Naruto
         </p>
+
         <div className="mb-3 flex items-center justify-between gap-4">
           <h2 className="text-2xl font-semibold">Shippuden</h2>
           <p className="text-sm text-gray-300">
-            {shippudenDone} / {shippudenSteps.length}
+            {getStatus(shippudenPercent)}
           </p>
         </div>
+
         <div className="h-3 w-full overflow-hidden rounded-full bg-gray-800">
           <div
             className="h-full rounded-full bg-orange-500 transition-all duration-300"
             style={{ width: `${shippudenPercent}%` }}
           />
         </div>
-        <p className="mt-3 text-sm text-gray-400">{shippudenPercent}% through</p>
       </div>
     </section>
   );

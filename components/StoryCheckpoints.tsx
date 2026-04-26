@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { storyCheckpoints } from "@/data/storyCheckpoints";
 
 type Props = {
@@ -43,9 +43,7 @@ function getAccent(accentColor: "orange" | "blue") {
 }
 
 function readProgress(): SavedProgressItem[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
+  if (typeof window === "undefined") return [];
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -61,8 +59,6 @@ export default function StoryCheckpoint({ arcId, accentColor }: Props) {
 
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [justUnlocked, setJustUnlocked] = useState(false);
-  const [seed, setSeed] = useState(() => Math.random());
-  const [activePrompt, setActivePrompt] = useState<string | null>(null);
 
   const wasUnlockedRef = useRef(false);
   const unlockTimerRef = useRef<number | null>(null);
@@ -101,19 +97,9 @@ export default function StoryCheckpoint({ arcId, accentColor }: Props) {
     };
   }, [arcId]);
 
-  const prompts = useMemo(() => {
-    if (!checkpoint) return [];
-
-    return [...checkpoint.prompts].sort(() => 0.5 - seed).slice(0, 3);
-  }, [checkpoint, seed]);
-
   if (!checkpoint) return null;
 
-  function handlePromptClick(prompt: string) {
-    setActivePrompt((currentPrompt) =>
-      currentPrompt === prompt ? null : prompt
-    );
-  }
+  const prompts = checkpoint.prompts.slice(0, 3);
 
   return (
     <div
@@ -169,62 +155,27 @@ export default function StoryCheckpoint({ arcId, accentColor }: Props) {
             </div>
 
             <p className="mt-2 text-sm text-gray-400 sm:text-base">
-              Matched to your current point in the story.
+              A few things to think about after finishing this arc.
             </p>
           </div>
 
           <div className="grid gap-3">
-            {prompts.map((item, index) => {
-              const isActive = activePrompt === item.prompt;
-
-              return (
-                <div
-                  key={item.prompt}
-                  className={
-                    justUnlocked
-                      ? "animate-[checkpointCardIn_420ms_ease-out_both]"
-                      : ""
-                  }
-                  style={{
-                    animationDelay: justUnlocked
-                      ? `${index * 90}ms`
-                      : undefined,
-                  }}
-                >
-                  <button
-                    type="button"
-                    onClick={() => handlePromptClick(item.prompt)}
-                    className={[
-                      `relative w-full overflow-hidden rounded-2xl border px-4 py-3 text-left text-sm transition duration-200 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.03] sm:text-base ${accent.border} ${accent.bg}`,
-                      "before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent",
-                      isActive
-                        ? "border-white/25 bg-white/[0.04] shadow-[0_0_24px_rgba(255,255,255,0.05)]"
-                        : "",
-                    ].join(" ")}
-                  >
-                    <span className="relative z-10">{item.prompt}</span>
-                  </button>
-
-                  {isActive && (
-                    <div className="mt-2 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-4 text-sm leading-7 text-gray-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-base sm:leading-8">
-                      {item.response}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {prompts.map((prompt, index) => (
+              <div
+                key={prompt}
+                className={[
+                  `relative overflow-hidden rounded-2xl border px-4 py-3 text-sm sm:text-base ${accent.border} ${accent.bg}`,
+                  "before:pointer-events-none before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent",
+                  justUnlocked ? "animate-[checkpointCardIn_420ms_ease-out_both]" : "",
+                ].join(" ")}
+                style={{
+                  animationDelay: justUnlocked ? `${index * 70}ms` : undefined,
+                }}
+              >
+                <span className="relative z-10">{prompt}</span>
+              </div>
+            ))}
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setSeed(Math.random());
-              setActivePrompt(null);
-            }}
-            className="mt-5 text-sm text-gray-400 transition hover:text-white active:scale-[0.98]"
-          >
-            ↻ New prompts
-          </button>
         </div>
       )}
     </div>
