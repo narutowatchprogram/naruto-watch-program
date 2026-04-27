@@ -42,56 +42,7 @@ type SeriesStepPageProps = {
   accentColor: "orange" | "blue";
 };
 
-const OPTIONAL_CANON_NOVEL_SLUGS = new Set([
-  "itachi-shinden",
-  "sasuke-shinden",
-  "shikamaru-hiden",
-  "konoha-hiden",
-]);
-
-const OPTIONAL_ANIME_ORIGINAL_SLUGS = new Set(["kakashi-anbu-arc"]);
-
-const NON_CANON_STEP_SLUGS = new Set([
-  "movie-land-of-snow",
-  "movie-stone-of-gelel",
-  "movie-crescent-moon",
-  "part-1-filler-block",
-  "kakashi-face-reveal",
-  "movie-shippuden-1",
-  "early-filler-block",
-  "mid-filler-block",
-  "movie-bonds",
-  "movie-will-of-fire",
-  "movie-lost-tower",
-  "late-filler-block",
-  "pain-interruption",
-  "post-pain-filler-block",
-  "movie-blood-prison",
-  "war-setup-filler-block",
-  "war-filler-break-1",
-  "war-filler-break-2",
-  "war-filler-break-3",
-  "war-filler-break-4",
-  "war-filler-break-5",
-  "war-filler-break-6a",
-  "war-filler-break-7",
-  "war-filler-break-8",
-  "war-filler-break-9",
-  "war-filler-break-12",
-  "late-ending-filler-break",
-  "kakashi-face-reveal-2",
-  "ending-filler-break",
-  "movie-road-to-ninja",
-  "early-filler-break",
-  "team-7-filler-break",
-  "cho-cho-filler-break",
-  "small-filler-break-1",
-  "filler-break-2",
-  "filler-break-3",
-  "filler-break-4",
-  "filler-break-5",
-  "late-filler-break",
-]);
+const BORUTO_REQUIRED_EXCEPTIONS = new Set(["academy-opening-mixed"]);
 
 function getCanonType(
   series: "naruto" | "shippuden" | "boruto",
@@ -104,9 +55,6 @@ function getCanonType(
 
   if (isMovie) return "movie";
   if (series === "boruto") return "animeCanon";
-  if (NON_CANON_STEP_SLUGS.has(step.slug)) return "filler";
-  if (OPTIONAL_CANON_NOVEL_SLUGS.has(step.slug)) return "mixedCanon";
-  if (OPTIONAL_ANIME_ORIGINAL_SLUGS.has(step.slug)) return "animeCanon";
 
   return "mangaCanon";
 }
@@ -322,6 +270,22 @@ function getSectionCardClass(accent: ReturnType<typeof getAccent>) {
   return `rounded-[1.5rem] sm:rounded-[2rem] border border-white/10 bg-zinc-950/90 p-4 sm:p-6 ${accent.cardGlow}`;
 }
 
+function formatEpisodeBadgeLabel(episodes: string) {
+  if (/^\d/.test(episodes)) {
+    return `Episodes ${episodes}`;
+  }
+
+  return episodes;
+}
+
+function EpisodeBadge({ episodes }: { episodes: string }) {
+  return (
+    <span className="rounded-full border border-white/20 bg-white/[0.08] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-[0_0_18px_rgba(255,255,255,0.06)] sm:text-xs">
+      {formatEpisodeBadgeLabel(episodes)}
+    </span>
+  );
+}
+
 export default function SeriesStepPage({
   series,
   backHref,
@@ -355,9 +319,7 @@ export default function SeriesStepPage({
   const currentIndex = steps.findIndex((item) => item.slug === step.slug);
   const nextMainPathCanon =
     currentIndex >= 0
-      ? steps
-          .slice(currentIndex + 1)
-          .find((item) => isProgressCanon(series, item))
+      ? steps.slice(currentIndex + 1).find((item) => isProgressCanon(series, item))
       : undefined;
 
   const note = hasContent(step.note) ? step.note : "";
@@ -412,6 +374,8 @@ export default function SeriesStepPage({
             <div className="flex flex-col justify-between">
               <div>
                 <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <EpisodeBadge episodes={step.episodes} />
+
                   <span
                     className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide sm:text-xs ${primaryBadge.className}`}
                   >
@@ -425,10 +389,6 @@ export default function SeriesStepPage({
                       {secondaryBadge.label}
                     </span>
                   )}
-
-                  <span className="rounded-full border border-gray-700 bg-gray-800/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-300 sm:text-xs">
-                    {step.episodes}
-                  </span>
                 </div>
 
                 <h1 className="max-w-4xl text-3xl font-bold leading-[0.95] tracking-tight sm:text-5xl xl:text-6xl">
@@ -573,6 +533,15 @@ export default function SeriesStepPage({
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-gray-400">
+                    Episodes
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-white sm:text-base">
+                    {step.episodes}
+                  </p>
+                </div>
+
                 <div
                   className={`rounded-2xl border px-4 py-4 ${accent.border} ${accent.bg}`}
                 >
@@ -581,15 +550,6 @@ export default function SeriesStepPage({
                   </p>
                   <p className="mt-2 text-sm font-semibold text-white sm:text-base">
                     {primaryBadge.label}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-gray-400">
-                    Episodes
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-white sm:text-base">
-                    {step.episodes}
                   </p>
                 </div>
 
@@ -628,16 +588,14 @@ export default function SeriesStepPage({
                       className="rounded-2xl border border-white/10 bg-white/[0.02] p-3 transition duration-200 hover:border-white/15 hover:bg-white/[0.03] sm:p-4"
                     >
                       <div className="flex flex-wrap items-center gap-2">
+                        <EpisodeBadge episodes={item.episodes} />
+
                         <span
                           className={`rounded-full border px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wide sm:text-[10px] ${getEpisodeGuideStyle(
                             item.type
                           )}`}
                         >
                           {getEpisodeGuideLabel(item.type)}
-                        </span>
-
-                        <span className="rounded-full border border-gray-700 bg-gray-800/70 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-wide text-gray-300 sm:text-[10px]">
-                          {item.episodes}
                         </span>
                       </div>
 

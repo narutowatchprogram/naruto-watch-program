@@ -5,6 +5,13 @@ import { useEffect, useState } from "react";
 import { steps } from "@/data/steps";
 import { shippudenSteps } from "@/data/shippudenSteps";
 
+type CanonType =
+  | "mangaCanon"
+  | "animeCanon"
+  | "mixedCanon"
+  | "filler"
+  | "movie";
+
 type SavedProgressItem = {
   id: string;
   series: "naruto" | "shippuden";
@@ -15,81 +22,18 @@ type SavedProgressItem = {
 type MainPathStep = {
   slug: string;
   title: string;
+  canonType?: CanonType;
 };
 
 const STORAGE_KEY = "naruto-watch-program-progress";
+const PROGRESS_EVENT = "naruto-progress-updated";
 
-const OPTIONAL_CANON_NOVEL_SLUGS = new Set([
-  "itachi-shinden",
-  "sasuke-shinden",
-  "shikamaru-hiden",
-]);
+const REQUIRED_MOVIE_SLUGS = new Set(["movie-the-last"]);
 
-const OPTIONAL_ANIME_ORIGINAL_SLUGS = new Set(["kakashi-anbu-arc"]);
+function isRequiredResumeStep(step: MainPathStep) {
+  if (REQUIRED_MOVIE_SLUGS.has(step.slug)) return true;
 
-const REQUIRED_SHIPPUDEN_ENDING_SLUGS = new Set([
-  "movie-the-last",
-  "konoha-hiden",
-]);
-
-const NON_CANON_STEP_SLUGS = new Set([
-  "movie-land-of-snow",
-  "movie-stone-of-gelel",
-  "movie-crescent-moon",
-  "part-1-filler-block",
-  "kakashi-face-reveal",
-  "movie-shippuden-1",
-  "early-filler-block",
-  "mid-filler-block",
-  "movie-bonds",
-  "movie-will-of-fire",
-  "movie-lost-tower",
-  "late-filler-block",
-  "pain-interruption",
-  "post-pain-filler-block",
-  "movie-blood-prison",
-  "war-setup-filler-block",
-  "war-filler-break-1",
-  "war-filler-break-2",
-  "war-filler-break-3",
-  "war-filler-break-4",
-  "war-filler-break-5",
-  "war-filler-break-6a",
-  "war-filler-break-7",
-  "war-filler-break-8",
-  "war-filler-break-9",
-  "war-filler-break-12",
-  "late-ending-filler-break",
-  "kakashi-face-reveal-2",
-  "ending-filler-break",
-  "movie-road-to-ninja",
-  "early-filler-break",
-  "team-7-filler-break",
-  "cho-cho-filler-break",
-  "small-filler-break-1",
-  "filler-break-2",
-  "filler-break-3",
-  "filler-break-4",
-  "filler-break-5",
-  "late-filler-break",
-]);
-
-function isNarutoMainPath(slug: string) {
-  return (
-    !NON_CANON_STEP_SLUGS.has(slug) &&
-    !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
-    !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
-  );
-}
-
-function isShippudenMainPath(slug: string) {
-  if (REQUIRED_SHIPPUDEN_ENDING_SLUGS.has(slug)) return true;
-
-  return (
-    !NON_CANON_STEP_SLUGS.has(slug) &&
-    !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
-    !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
-  );
+  return step.canonType === "mangaCanon" || step.canonType === "mixedCanon";
 }
 
 function getNextSequentialStep(
@@ -139,11 +83,11 @@ export default function ResumeButtons() {
       );
 
       const narutoMainPath = steps.filter((step) =>
-        isNarutoMainPath(step.slug)
+        isRequiredResumeStep(step)
       );
 
       const shippudenMainPath = shippudenSteps.filter((step) =>
-        isShippudenMainPath(step.slug)
+        isRequiredResumeStep(step)
       );
 
       const nextNarutoStep = getNextSequentialStep(
@@ -168,9 +112,6 @@ export default function ResumeButtons() {
 
       setMainComplete(narutoComplete && shippudenComplete);
 
-      // ✅ FIXED LOGIC
-
-      // Naruto
       if (completedNaruto.size === 0) {
         setNarutoHref("/program");
         setNarutoLabel("Start Naruto");
@@ -185,11 +126,10 @@ export default function ResumeButtons() {
         setNarutoSub("");
       }
 
-      // Shippuden
       if (completedShippuden.size === 0) {
         setShippudenHref("/shippuden");
         setShippudenLabel("Go to Shippuden");
-        setShippudenSub("Kazekage Rescue");
+        setShippudenSub("Kazekage / Tenchi Bridge");
       } else if (nextShippudenStep) {
         setShippudenHref(`/shippuden/${nextShippudenStep.slug}`);
         setShippudenLabel("Continue Shippuden");
@@ -202,10 +142,10 @@ export default function ResumeButtons() {
     }
 
     loadProgress();
-    window.addEventListener("naruto-progress-updated", loadProgress);
+    window.addEventListener(PROGRESS_EVENT, loadProgress);
 
     return () => {
-      window.removeEventListener("naruto-progress-updated", loadProgress);
+      window.removeEventListener(PROGRESS_EVENT, loadProgress);
     };
   }, []);
 

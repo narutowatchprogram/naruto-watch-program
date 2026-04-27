@@ -53,57 +53,6 @@ type SavedProgressItem = {
 const STORAGE_KEY = "naruto-watch-program-progress";
 const PROGRESS_EVENT = "naruto-progress-updated";
 
-const OPTIONAL_CANON_NOVEL_SLUGS = new Set([
-  "itachi-shinden",
-  "sasuke-shinden",
-  "shikamaru-hiden",
-  "konoha-hiden",
-]);
-
-const OPTIONAL_ANIME_ORIGINAL_SLUGS = new Set(["kakashi-anbu-arc"]);
-
-const NON_CANON_STEP_SLUGS = new Set([
-  "movie-land-of-snow",
-  "movie-stone-of-gelel",
-  "movie-crescent-moon",
-  "part-1-filler-block",
-  "kakashi-face-reveal",
-  "movie-shippuden-1",
-  "early-filler-block",
-  "mid-filler-block",
-  "movie-bonds",
-  "movie-will-of-fire",
-  "movie-lost-tower",
-  "late-filler-block",
-  "pain-interruption",
-  "post-pain-filler-block",
-  "movie-blood-prison",
-  "war-setup-filler-block",
-  "war-filler-break-1",
-  "war-filler-break-2",
-  "war-filler-break-3",
-  "war-filler-break-4",
-  "war-filler-break-5",
-  "war-filler-break-6a",
-  "war-filler-break-7",
-  "war-filler-break-8",
-  "war-filler-break-9",
-  "war-filler-break-12",
-  "late-ending-filler-break",
-  "kakashi-face-reveal-2",
-  "ending-filler-break",
-  "movie-road-to-ninja",
-  "early-filler-break",
-  "team-7-filler-break",
-  "cho-cho-filler-break",
-  "small-filler-break-1",
-  "filler-break-2",
-  "filler-break-3",
-  "filler-break-4",
-  "filler-break-5",
-  "late-filler-break",
-]);
-
 const BORUTO_REQUIRED_EXCEPTIONS = new Set(["academy-opening-mixed"]);
 
 function getCanonType(
@@ -117,9 +66,6 @@ function getCanonType(
 
   if (isMovie) return "movie";
   if (series === "boruto") return "animeCanon";
-  if (NON_CANON_STEP_SLUGS.has(step.slug)) return "filler";
-  if (OPTIONAL_CANON_NOVEL_SLUGS.has(step.slug)) return "mixedCanon";
-  if (OPTIONAL_ANIME_ORIGINAL_SLUGS.has(step.slug)) return "animeCanon";
 
   return "mangaCanon";
 }
@@ -358,6 +304,14 @@ function getOptionalCardClasses(
   }
 }
 
+function formatEpisodeBadgeLabel(episodes: string) {
+  if (/^\d/.test(episodes)) {
+    return `Episodes ${episodes}`;
+  }
+
+  return episodes;
+}
+
 function Badge({
   label,
   className,
@@ -371,6 +325,15 @@ function Badge({
     >
       {label}
     </span>
+  );
+}
+
+function EpisodeBadge({ episodes }: { episodes: string }) {
+  return (
+    <Badge
+      label={formatEpisodeBadgeLabel(episodes)}
+      className="border-white/20 bg-white/[0.08] text-white shadow-[0_0_18px_rgba(255,255,255,0.06)]"
+    />
   );
 }
 
@@ -401,6 +364,8 @@ function renderStandardRow({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
+            <EpisodeBadge episodes={step.episodes} />
+
             <Badge label={primaryBadge.label} className={primaryBadge.className} />
 
             {secondaryBadge && (
@@ -409,11 +374,6 @@ function renderStandardRow({
                 className={secondaryBadge.className}
               />
             )}
-
-            <Badge
-              label={step.episodes}
-              className="border-gray-700 bg-gray-800/70 text-gray-300"
-            />
 
             {extraBadges}
           </div>
@@ -561,6 +521,8 @@ export default function SeriesProgramPage({
                           ].join(" ")}
                         >
                           <div className="mb-4 flex flex-wrap items-center gap-2">
+                            <EpisodeBadge episodes={step.episodes} />
+
                             <Badge
                               label={primaryBadge.label}
                               className={primaryBadge.className}
@@ -572,11 +534,6 @@ export default function SeriesProgramPage({
                                 className={secondaryBadge.className}
                               />
                             )}
-
-                            <Badge
-                              label={step.episodes}
-                              className="border-gray-700 bg-gray-800/70 text-gray-300"
-                            />
 
                             {isCompleted && (
                               <Badge
@@ -633,11 +590,11 @@ export default function SeriesProgramPage({
                     >
                       <div className="flex items-center justify-between gap-4 border-l border-red-500/25 pl-4">
                         <div className="min-w-0">
+                          <p className="mb-1 text-xs font-bold uppercase tracking-wide text-white">
+                            {formatEpisodeBadgeLabel(step.episodes)}
+                          </p>
                           <p className="text-sm font-bold text-gray-300">
                             {step.title}
-                          </p>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            {step.episodes}
                           </p>
                         </div>
 
@@ -735,7 +692,9 @@ export default function SeriesProgramPage({
               href={nextHref}
               className={`mt-12 block rounded-3xl px-6 py-6 transition-all duration-200 hover:-translate-y-0.5 ${accent.nextBg} ${accent.nextHover} ${accent.glow}`}
             >
-              <p className={`mb-2 text-xs font-bold uppercase tracking-[0.22em] ${accent.text}`}>
+              <p
+                className={`mb-2 text-xs font-bold uppercase tracking-[0.22em] ${accent.text}`}
+              >
                 Next
               </p>
 
