@@ -1631,70 +1631,36 @@ export default function FandomPage() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050505] px-3 py-4 text-white sm:px-6 sm:py-8">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(249,115,22,0.22),transparent_28%),radial-gradient(circle_at_88%_18%,rgba(59,130,246,0.16),transparent_24%),radial-gradient(circle_at_70%_92%,rgba(239,68,68,0.16),transparent_28%)]" />
-      <div className="pointer-events-none fixed inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.8)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.8)_1px,transparent_1px)] [background-size:72px_72px]" />
+    <main className="min-h-screen overflow-x-hidden bg-[#050505] px-3 py-4 text-white sm:px-6 sm:py-8">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_16%_8%,rgba(249,115,22,0.22),transparent_28%),radial-gradient(circle_at_92%_12%,rgba(59,130,246,0.14),transparent_24%),radial-gradient(circle_at_70%_92%,rgba(239,68,68,0.13),transparent_30%)]" />
+      <div className="pointer-events-none fixed inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(255,255,255,.7)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.7)_1px,transparent_1px)] [background-size:58px_58px]" />
 
-      <section className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950/80 shadow-[0_30px_120px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:rounded-[2.75rem]">
+      <section className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-950/88 shadow-[0_24px_90px_rgba(0,0,0,0.72)] backdrop-blur-xl sm:rounded-[2.5rem]">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/70 to-transparent" />
 
-        <div className="grid min-h-[760px] lg:grid-cols-[76px_320px_1fr]">
-          <aside className="hidden border-r border-white/10 bg-black/45 px-3 py-5 lg:block">
-            <div className="flex flex-col items-center gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-orange-400 text-2xl font-black text-black shadow-[0_0_28px_rgba(251,146,60,0.35)]">
-                🍥
+        <div className="grid xl:grid-cols-[360px_1fr]">
+          <aside className="border-b border-white/10 bg-black/30 xl:border-b-0 xl:border-r">
+            <div className="px-4 py-5 sm:px-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-300">
+                    Fandom
+                  </p>
+                  <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+                    Arc rooms
+                  </h1>
+                </div>
+
+                <Link
+                  href="/"
+                  className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-[11px] font-black text-zinc-300 transition active:scale-95"
+                >
+                  Home
+                </Link>
               </div>
 
-              <div className="h-px w-8 bg-white/10" />
-
-              {allTopics.map((topic) => {
-                const unlocked = topicIsUnlocked(
-                  topic,
-                  completedIds,
-                  creatorMode,
-                  mainProgramComplete
-                );
-                const active = activeTopic?.id === topic.id;
-                const tone = getToneClasses(topic);
-
-                return (
-                  <button
-                    key={topic.id}
-                    type="button"
-                    onClick={() => setActiveTopicId(topic.id)}
-                    aria-label={topic.channelName}
-                    className={[
-                      "relative grid h-12 w-12 place-items-center rounded-2xl text-sm font-black transition duration-200 active:scale-95",
-                      active
-                        ? `${tone.roomActive} ${tone.glow}`
-                        : "bg-white/[0.04] text-zinc-500 hover:bg-white/[0.08] hover:text-white",
-                    ].join(" ")}
-                  >
-                    {topic.shortCode}
-
-                    <span
-                      className={[
-                        "absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-zinc-950",
-                        unlocked ? tone.dot : "bg-zinc-700",
-                      ].join(" ")}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-
-          <aside className="border-b border-white/10 bg-black/35 lg:border-b-0 lg:border-r">
-            <div className="border-b border-white/10 px-4 py-5 sm:px-5">
-              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-orange-300">
-                Fandom
-              </p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight">
-                Arc rooms
-              </h1>
-
               <div className="mt-4 flex flex-wrap gap-2">
-                <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-zinc-300">
+                <div className="rounded-full border border-orange-300/25 bg-orange-400/10 px-3 py-1.5 text-xs font-black text-orange-100">
                   {unlockedTopics.length} open
                 </div>
                 <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-zinc-300">
@@ -1711,231 +1677,261 @@ export default function FandomPage() {
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search rooms..."
-                className="mt-4 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-white/30"
+                className="mt-4 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-base font-bold text-white outline-none placeholder:text-white/30"
               />
             </div>
 
-            <div className="px-2 py-3 sm:px-3">
-              <p className="px-3 pb-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
-                Channels
-              </p>
-
-              <div className="space-y-1">
-                {filteredTopics.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm font-bold text-zinc-500">
-                    No rooms found.
-                  </div>
-                )}
-
-                {filteredTopics.map((topic) => {
-                  const unlocked = topicIsUnlocked(
-                    topic,
-                    completedIds,
-                    creatorMode,
-                    mainProgramComplete
-                  );
-                  const active = activeTopic?.id === topic.id;
-                  const tone = getToneClasses(topic);
-
-                  return (
-                    <button
-                      key={topic.id}
-                      type="button"
-                      onClick={() => setActiveTopicId(topic.id)}
-                      className={[
-                        "group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition duration-200 before:absolute before:left-0 before:top-1/2 before:h-6 before:w-1 before:-translate-y-1/2 before:rounded-r-full before:transition after:absolute after:right-3 after:top-1/2 after:h-1.5 after:w-1.5 after:-translate-y-1/2 after:rounded-full",
-                        active ? tone.roomActive : tone.roomInactive,
-                        !unlocked && !active ? "after:bg-zinc-700" : "",
-                      ].join(" ")}
-                    >
-                      <span className="w-8 text-center text-sm font-black opacity-70">
-                        #
-                      </span>
-
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-black">
-                          {topic.channelName}
-                        </span>
-                        <span className="block truncate text-xs text-current opacity-45">
-                          {topic.arcTitle} ·{" "}
-                          {unlocked ? "discussion open" : "sealed"}
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-5 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300">
-                  Request a room
-                </p>
-
-                <input
-                  value={requestTopic}
-                  onChange={(event) => setRequestTopic(event.target.value)}
-                  placeholder="Topic idea"
-                  className="mt-3 w-full rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-sm font-bold text-white outline-none placeholder:text-white/30"
-                />
-
-                <input
-                  value={requestName}
-                  onChange={(event) => setRequestName(event.target.value)}
-                  placeholder="Name optional"
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-sm font-bold text-white outline-none placeholder:text-white/30"
-                />
-
-                <label className="mt-2 block">
-                  <span className="mb-1 block text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">
-                    Where should this unlock?
-                  </span>
-
-                  <select
-                    value={requestGateId}
-                    onChange={(event) => setRequestGateId(event.target.value)}
-                    className="w-full rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-sm font-bold text-white outline-none"
-                  >
-                    <option value="" className="bg-zinc-950 text-white">
-                      Choose arc / progression gate
-                    </option>
-                    {topicUnlockGates.map((gate) => (
-                      <option key={gate.id} value={gate.id} className="bg-zinc-950 text-white">
-                        {gate.label}
-                      </option>
-                    ))}
-                  </select>
-
-                  <span className="mt-1 block text-[11px] font-bold text-zinc-500">
-                    {getUnlockGateById(requestGateId)?.helper ??
-                      "Choose the exact story point this topic belongs to."}
-                  </span>
-                </label>
-
-                <textarea
-                  value={requestNote}
-                  onChange={(event) => setRequestNote(event.target.value)}
-                  placeholder="Topic Description / Discussion Prompt"
-                  rows={3}
-                  className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-sm font-bold text-white outline-none placeholder:text-white/30"
-                />
-
-                <button
-                  type="button"
-                  onClick={handleTopicRequestSubmit}
-                  disabled={!requestTopic.trim() || !requestGateId}
-                  className="mt-3 w-full rounded-2xl border border-orange-300/25 bg-orange-400/10 px-4 py-3 text-sm font-black text-orange-100 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Send for approval
-                </button>
-
-                {requestSubmitted && (
-                  <p className="mt-2 text-xs font-bold text-sky-200">
-                    Sent. Creator approval comes later.
-                  </p>
-                )}
-
-                {creatorMode && topicRequests.length > 0 && (
-                  <div className="mt-4 border-t border-white/10 pt-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-sky-200">
-                        Pending ideas
-                      </p>
-                      <p className="rounded-full border border-sky-300/20 bg-sky-400/10 px-2 py-1 text-[10px] font-black text-sky-200">
-                        {topicRequests.length}
-                      </p>
+            <div className="px-4 pb-5 sm:px-6">
+              <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 xl:mx-0 xl:overflow-visible xl:px-0 xl:pb-0">
+                <div className="flex gap-3 xl:flex-col">
+                  {filteredTopics.length === 0 && (
+                    <div className="min-w-full rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm font-bold text-zinc-500">
+                      No rooms found.
                     </div>
+                  )}
 
-                    <div className="mt-3 space-y-3">
-                      {topicRequests.map((request) => (
-                        <div
-                          key={request.id}
-                          className="rounded-2xl border border-white/10 bg-black/40 px-3 py-3 text-xs text-zinc-300"
-                        >
-                          <p className="font-black text-white">
-                            {request.topic}
-                          </p>
-                          <p className="mt-1 text-zinc-500">
-                            From {request.name}
-                          </p>
+                  {filteredTopics.map((topic) => {
+                    const unlocked = topicIsUnlocked(
+                      topic,
+                      completedIds,
+                      creatorMode,
+                      mainProgramComplete
+                    );
+                    const active = activeTopic?.id === topic.id;
+                    const tone = getToneClasses(topic);
+                    const topicComments = savedComments[topic.id] ?? [];
+                    const replyCount = topicComments.length;
 
-                          <p className="mt-1 text-[11px] font-black uppercase tracking-[0.12em] text-orange-200/80">
-                            Unlocks after {request.arcTitle}
-                          </p>
+                    return (
+                      <button
+                        key={topic.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveTopicId(topic.id);
+                          setReplyingToId(null);
+                          setEmojiPickerCommentId(null);
+                          setModerationAlert("");
+                        }}
+                        className={[
+                          "group relative flex min-h-[104px] w-[82vw] shrink-0 flex-col justify-between overflow-hidden rounded-[1.45rem] border p-4 text-left transition active:scale-[0.98] sm:w-[360px] xl:w-full",
+                          active
+                            ? "border-orange-300/35 bg-orange-400/[0.12] shadow-[0_0_35px_rgba(249,115,22,0.16)]"
+                            : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]",
+                          !unlocked ? "opacity-65" : "",
+                        ].join(" ")}
+                      >
+                        <div className="pointer-events-none absolute -right-10 -top-14 h-28 w-28 rounded-full bg-orange-400/10 blur-2xl" />
 
-                          {request.note && (
-                            <p className="mt-2 leading-5 text-zinc-300">
-                              {request.note}
+                        <div className="relative flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={[
+                                  "h-2.5 w-2.5 shrink-0 rounded-full",
+                                  unlocked ? tone.dot : "bg-zinc-700",
+                                ].join(" ")}
+                              />
+                              <p className="truncate text-[10px] font-black uppercase tracking-[0.18em] text-orange-200/90">
+                                {topic.arcTitle}
+                              </p>
+                            </div>
+
+                            <p className="mt-2 text-lg font-black leading-tight text-white">
+                              {topic.channelName}
                             </p>
-                          )}
-
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => approveTopicRequest(request)}
-                              className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-black text-emerald-100 transition hover:bg-emerald-400/15 active:scale-95"
-                            >
-                              Approve
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => rejectTopicRequest(request.id)}
-                              className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1.5 text-[11px] font-black text-red-100 transition hover:bg-red-400/15 active:scale-95"
-                            >
-                              Reject
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => deleteTopicRequest(request.id)}
-                              className="rounded-full border border-zinc-500/30 bg-zinc-500/10 px-3 py-1.5 text-[11px] font-black text-zinc-200 transition hover:bg-zinc-500/15 active:scale-95"
-                            >
-                              Delete
-                            </button>
                           </div>
+
+                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/35 text-xs font-black text-zinc-200">
+                            {topic.shortCode}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
+                        <div className="relative mt-3 flex items-center justify-between gap-3 text-xs font-bold text-zinc-400">
+                          <span>{unlocked ? "Open" : "Sealed"}</span>
+                          <span>{replyCount} posts</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              <details className="mt-4 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.035]">
+                <summary className="cursor-pointer list-none px-4 py-4 text-sm font-black uppercase tracking-[0.18em] text-orange-300">
+                  Request a room
+                </summary>
+
+                <div className="border-t border-white/10 px-4 pb-4 pt-3">
+                  <input
+                    value={requestTopic}
+                    onChange={(event) => setRequestTopic(event.target.value)}
+                    placeholder="Topic idea"
+                    className="w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-white/30"
+                  />
+
+                  <input
+                    value={requestName}
+                    onChange={(event) => setRequestName(event.target.value)}
+                    placeholder="Name optional"
+                    className="mt-3 w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-white/30"
+                  />
+
+                  <label className="mt-3 block">
+                    <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.16em] text-zinc-500">
+                      Unlock point
+                    </span>
+
+                    <select
+                      value={requestGateId}
+                      onChange={(event) => setRequestGateId(event.target.value)}
+                      className="w-full rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none"
+                    >
+                      <option value="" className="bg-zinc-950 text-white">
+                        Choose arc / progression gate
+                      </option>
+                      {topicUnlockGates.map((gate) => (
+                        <option
+                          key={gate.id}
+                          value={gate.id}
+                          className="bg-zinc-950 text-white"
+                        >
+                          {gate.label}
+                        </option>
+                      ))}
+                    </select>
+
+                    <span className="mt-2 block text-xs font-bold leading-5 text-zinc-500">
+                      {getUnlockGateById(requestGateId)?.helper ??
+                        "Choose where this topic becomes spoiler-safe."}
+                    </span>
+                  </label>
+
+                  <textarea
+                    value={requestNote}
+                    onChange={(event) => setRequestNote(event.target.value)}
+                    placeholder="Discussion prompt"
+                    rows={3}
+                    className="mt-3 w-full resize-none rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none placeholder:text-white/30"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleTopicRequestSubmit}
+                    disabled={!requestTopic.trim() || !requestGateId}
+                    className="mt-3 w-full rounded-2xl border border-orange-300/25 bg-orange-400/10 px-4 py-3 text-sm font-black text-orange-100 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Send for approval
+                  </button>
+
+                  {requestSubmitted && (
+                    <p className="mt-2 text-xs font-bold text-sky-200">
+                      Sent. Creator approval comes later.
+                    </p>
+                  )}
+
+                  {creatorMode && topicRequests.length > 0 && (
+                    <div className="mt-5 border-t border-white/10 pt-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-sky-200">
+                          Pending ideas
+                        </p>
+                        <p className="rounded-full border border-sky-300/20 bg-sky-400/10 px-2 py-1 text-[10px] font-black text-sky-200">
+                          {topicRequests.length}
+                        </p>
+                      </div>
+
+                      <div className="mt-3 space-y-3">
+                        {topicRequests.map((request) => (
+                          <div
+                            key={request.id}
+                            className="rounded-2xl border border-white/10 bg-black/40 px-3 py-3 text-xs text-zinc-300"
+                          >
+                            <p className="font-black text-white">
+                              {request.topic}
+                            </p>
+                            <p className="mt-1 text-zinc-500">
+                              From {request.name}
+                            </p>
+                            <p className="mt-1 text-[11px] font-black uppercase tracking-[0.12em] text-orange-200/80">
+                              Unlocks after {request.arcTitle}
+                            </p>
+                            {request.note && (
+                              <p className="mt-2 leading-5 text-zinc-300">
+                                {request.note}
+                              </p>
+                            )}
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => approveTopicRequest(request)}
+                                className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-black text-emerald-100 transition active:scale-95"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => rejectTopicRequest(request.id)}
+                                className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1.5 text-[11px] font-black text-red-100 transition active:scale-95"
+                              >
+                                Reject
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteTopicRequest(request.id)}
+                                className="rounded-full border border-zinc-500/30 bg-zinc-500/10 px-3 py-1.5 text-[11px] font-black text-zinc-200 transition active:scale-95"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </details>
             </div>
           </aside>
 
-          <section className="relative min-h-[680px] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),transparent_18%)]">
+          <section className="min-w-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),transparent_22%)]">
             {!activeTopic || !activeTone ? null : (
               <>
-                <header className="sticky top-0 z-20 border-b border-white/10 bg-zinc-950/82 px-4 py-4 backdrop-blur-xl sm:px-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0">
+                <header className="sticky top-0 z-20 border-b border-white/10 bg-zinc-950/90 px-4 py-4 backdrop-blur-xl sm:px-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span
                           className={[
-                            "h-2.5 w-2.5 rounded-full",
+                            "h-2.5 w-2.5 shrink-0 rounded-full",
                             activeUnlocked ? activeTone.dot : "bg-zinc-700",
                           ].join(" ")}
                         />
                         <p
                           className={[
-                            "truncate text-xs font-black uppercase tracking-[0.2em]",
+                            "min-w-0 truncate text-[10px] font-black uppercase tracking-[0.2em]",
                             activeUnlocked
                               ? activeTone.softText
                               : "text-zinc-500",
                           ].join(" ")}
                         >
-                          #{activeTopic.channelName}
+                          {activeTopic.arcTitle}
                         </p>
                       </div>
 
-                      <h2 className="mt-1 truncate text-lg font-black sm:text-2xl">
-                        {activeUnlocked ? activeTopic.title : "Sealed thread"}
+                      <h2 className="mt-2 break-words text-2xl font-black leading-tight sm:text-3xl">
+                        {activeUnlocked ? activeTopic.title : activeTopic.channelName}
                       </h2>
+
+                      <p className="mt-2 text-xs font-bold text-zinc-500">
+                        {activeUnlocked ? `${topLevelComments.length} posts` : "Spoiler-safe room locked"}
+                      </p>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 flex-col items-end gap-2">
                       <span
                         className={[
-                          "rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em]",
+                          "rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em]",
                           activeUnlocked
                             ? activeTone.pill
                             : "border-zinc-700 bg-zinc-900 text-zinc-400",
@@ -1948,9 +1944,9 @@ export default function FandomPage() {
                         <button
                           type="button"
                           onClick={deleteAllCommentsInActiveRoom}
-                          className="rounded-full border border-zinc-500/30 bg-zinc-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-zinc-200 transition hover:bg-zinc-500/15 active:scale-95"
+                          className="rounded-full border border-zinc-500/30 bg-zinc-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-zinc-200 transition active:scale-95"
                         >
-                          Clear Thread
+                          Clear
                         </button>
                       )}
 
@@ -1958,9 +1954,9 @@ export default function FandomPage() {
                         <button
                           type="button"
                           onClick={() => deleteApprovedTopic(activeTopic.id)}
-                          className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-red-100 transition hover:bg-red-400/15 active:scale-95"
+                          className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-red-100 transition active:scale-95"
                         >
-                          Delete Room
+                          Delete
                         </button>
                       )}
                     </div>
@@ -1968,52 +1964,43 @@ export default function FandomPage() {
                 </header>
 
                 {!activeUnlocked ? (
-                  <div className="grid min-h-[610px] place-items-center px-5 py-12">
-                    <div className="relative w-full max-w-lg text-center">
-                      <div className="absolute left-1/2 top-10 h-64 w-64 -translate-x-1/2 rounded-full bg-orange-500/10 blur-3xl" />
-
-                      <div className="relative mx-auto grid h-44 w-44 place-items-center rounded-[2.5rem] border border-zinc-700/80 bg-black/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_28px_70px_rgba(0,0,0,0.55)]">
-                        <div className="absolute inset-4 rounded-[2rem] border border-zinc-800" />
-                        <div className="absolute inset-9 rounded-[1.35rem] border border-zinc-800" />
-                        <span className="text-6xl text-zinc-500">封</span>
+                  <div className="grid min-h-[520px] place-items-center px-4 py-12 sm:px-6">
+                    <div className="w-full max-w-md text-center">
+                      <div className="relative mx-auto grid h-36 w-36 place-items-center rounded-[2.25rem] border border-zinc-700/80 bg-black/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_28px_70px_rgba(0,0,0,0.55)]">
+                        <div className="absolute inset-4 rounded-[1.75rem] border border-zinc-800" />
+                        <span className="text-5xl text-zinc-500">封</span>
                       </div>
 
-                      <p className="mt-8 text-[11px] font-black uppercase tracking-[0.24em] text-orange-300">
+                      <p className="mt-7 text-[11px] font-black uppercase tracking-[0.24em] text-orange-300">
                         {activeTopic.channelName}
                       </p>
 
-                      <h3 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-                        {activeTopic.unlockType === "main-complete" ? (
-                          <>
-                            Finish the main story.
-                            <br />
-                            Then enter the room.
-                          </>
-                        ) : (
-                          <>
-                            Finish the arc.
-                            <br />
-                            Then enter the room.
-                          </>
-                        )}
+                      <h3 className="mt-3 text-3xl font-black tracking-tight">
+                        {activeTopic.unlockType === "main-complete"
+                          ? "Finish the main story to enter."
+                          : "Finish the arc to enter."}
                       </h3>
+
+                      <p className="mx-auto mt-3 max-w-xs text-sm font-bold leading-6 text-zinc-400">
+                        Topic prompts stay hidden until they are safe for your progress.
+                      </p>
 
                       <Link
                         href={getArcPath(activeTopic)}
-                        className="mt-8 inline-flex items-center justify-center rounded-full border border-orange-300/30 bg-orange-400/10 px-6 py-3 text-sm font-black text-orange-100 transition hover:border-orange-300/60 hover:bg-orange-400/15 active:scale-[0.98]"
+                        className="mt-7 inline-flex items-center justify-center rounded-full border border-orange-300/30 bg-orange-400/10 px-6 py-3 text-sm font-black text-orange-100 transition active:scale-[0.98]"
                       >
                         {activeTopic.unlockType === "main-complete"
-                          ? "Go to main program"
+                          ? "Go to Shippuden"
                           : "Go to arc"}
                       </Link>
                     </div>
                   </div>
                 ) : (
                   <div className="px-4 py-5 sm:px-6 sm:py-7">
-                    <div className="relative mb-6 overflow-hidden rounded-[2rem] border border-white/10 bg-black/40 p-5 sm:p-6">
+                    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/45 p-5">
                       <div
                         className={[
-                          "absolute -right-10 -top-16 h-44 w-44 rounded-full blur-3xl",
+                          "absolute -right-12 -top-16 h-40 w-40 rounded-full blur-3xl",
                           activeTopic.tone === "red"
                             ? "bg-red-500/20"
                             : "bg-orange-500/20",
@@ -2022,21 +2009,21 @@ export default function FandomPage() {
 
                       <p
                         className={[
-                          "text-[11px] font-black uppercase tracking-[0.22em]",
+                          "relative text-[11px] font-black uppercase tracking-[0.22em]",
                           activeTone.softText,
                         ].join(" ")}
                       >
                         Discussion
                       </p>
 
-                      <p className="relative mt-3 max-w-3xl text-lg font-bold leading-8 text-zinc-100 sm:text-2xl sm:leading-9">
+                      <p className="relative mt-3 break-words text-xl font-black leading-8 text-zinc-100 sm:text-2xl sm:leading-9">
                         {activeTopic.description}
                       </p>
                     </div>
 
-                    <div className="space-y-5">
+                    <div className="mt-6 space-y-5">
                       {topLevelComments.length === 0 && (
-                        <div className="rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] px-5 py-8 text-center">
+                        <div className="rounded-[1.75rem] border border-dashed border-white/15 bg-white/[0.03] px-5 py-8 text-center">
                           <p className="text-sm font-bold text-zinc-400">
                             No posts yet. Start the room with your first take.
                           </p>
@@ -2049,107 +2036,116 @@ export default function FandomPage() {
                         return (
                           <article
                             key={post.id}
-                            className="group grid grid-cols-[44px_1fr] gap-3 sm:grid-cols-[52px_1fr]"
+                            className="rounded-[1.5rem] border border-white/10 bg-white/[0.025] p-4 sm:p-5"
                           >
-                            <div
-                              className={[
-                                "mt-1 grid h-11 w-11 place-items-center rounded-2xl text-sm font-black sm:h-12 sm:w-12",
-                                post.role === "creator"
-                                  ? activeTone.message
-                                  : "border border-blue-300/20 bg-blue-500/10 text-blue-100",
-                              ].join(" ")}
-                            >
-                              {post.role === "creator" ? "SC" : "忍"}
-                            </div>
-
-                            <div className="min-w-0 border-b border-white/10 pb-5">
-                              <div className="mb-2 flex flex-wrap items-center gap-2">
-                                <p className="font-black text-zinc-100">
-                                  {post.author}
-                                </p>
-                                {post.verified && <VerifiedStamp />}
+                            <div className="flex gap-3">
+                              <div
+                                className={[
+                                  "grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-sm font-black",
+                                  post.role === "creator"
+                                    ? activeTone.message
+                                    : "border border-blue-300/20 bg-blue-500/10 text-blue-100",
+                                ].join(" ")}
+                              >
+                                {post.role === "creator" ? "SC" : "忍"}
                               </div>
 
-                              <CommentBody body={post.body} />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-black text-zinc-100">
+                                    {post.author}
+                                  </p>
+                                  {post.verified && <VerifiedStamp />}
+                                </div>
 
-                              <ReactionControls comment={post} />
+                                <div className="mt-2 break-words">
+                                  <CommentBody body={post.body} />
+                                </div>
 
-                              <div className="mt-2 flex flex-wrap items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setReplyingToId(post.id);
-                                    setModerationAlert("");
-                                  }}
-                                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-black text-zinc-300 transition hover:bg-white/[0.08] hover:text-white active:scale-95"
-                                >
-                                  ↳ Reply to {post.author}
-                                </button>
+                                <ReactionControls comment={post} />
 
-                                {creatorMode && (
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
                                   <button
                                     type="button"
-                                    onClick={() => handleDelete(post.id)}
-                                    className="rounded-full px-3 py-1.5 text-xs font-black text-red-300/80 transition hover:text-red-200"
+                                    onClick={() => {
+                                      setReplyingToId(post.id);
+                                      setModerationAlert("");
+                                    }}
+                                    className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black text-zinc-300 transition active:scale-95"
                                   >
-                                    Delete
+                                    Reply
                                   </button>
+
+                                  {creatorMode && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDelete(post.id)}
+                                      className="rounded-full border border-red-300/20 bg-red-400/10 px-3 py-2 text-xs font-black text-red-200 transition active:scale-95"
+                                    >
+                                      Delete
+                                    </button>
+                                  )}
+                                </div>
+
+                                {replies.length > 0 && (
+                                  <details className="mt-4 rounded-2xl border border-white/10 bg-black/25">
+                                    <summary className="cursor-pointer list-none px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-zinc-300">
+                                      View {replies.length} {replies.length === 1 ? "reply" : "replies"}
+                                    </summary>
+
+                                    <div className="space-y-4 border-t border-white/10 px-4 py-4">
+                                      {replies.map((reply) => (
+                                        <div
+                                          key={reply.id}
+                                          className="border-l border-orange-300/20 pl-4"
+                                        >
+                                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-black text-zinc-100">
+                                              {reply.author}
+                                            </p>
+                                            {reply.verified && <VerifiedStamp />}
+                                          </div>
+
+                                          <div className="break-words">
+                                            <CommentBody body={reply.body} />
+                                          </div>
+
+                                          <ReactionControls comment={reply} />
+
+                                          {creatorMode && (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDelete(reply.id)}
+                                              className="mt-2 rounded-full border border-red-300/20 bg-red-400/10 px-3 py-1.5 text-xs font-black text-red-200"
+                                            >
+                                              Delete
+                                            </button>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </details>
                                 )}
                               </div>
-
-                              {replies.length > 0 && (
-                                <div className="mt-5 space-y-4 border-l border-white/10 pl-4">
-                                  {replies.map((reply) => (
-                                    <div key={reply.id}>
-                                      <div className="mb-1 flex flex-wrap items-center gap-2">
-                                        <p className="text-sm font-black text-zinc-100">
-                                          {reply.author}
-                                        </p>
-                                        {reply.verified && <VerifiedStamp />}
-                                      </div>
-
-                                      <CommentBody body={reply.body} />
-
-                                      <ReactionControls comment={reply} />
-
-                                      {creatorMode && (
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleDelete(reply.id)
-                                          }
-                                          className="mt-2 text-xs font-black text-red-300/70"
-                                        >
-                                          Delete
-                                        </button>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
                             </div>
                           </article>
                         );
                       })}
                     </div>
 
-                    <div className="sticky bottom-3 mt-8 rounded-[1.75rem] border border-white/10 bg-zinc-950/90 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+                    <div className="sticky bottom-3 z-30 mt-7 rounded-[1.5rem] border border-white/10 bg-zinc-950/94 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.62)] backdrop-blur-xl">
                       {replyingToComment && (
-                        <div className="mb-3 overflow-hidden rounded-[1.35rem] border border-orange-300/20 bg-orange-400/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-                          <div className="flex items-start gap-3 p-3">
-                            <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-2xl border border-orange-300/20 bg-black/35 text-xs font-black text-orange-100">
+                        <div className="mb-3 rounded-[1.2rem] border border-orange-300/20 bg-orange-400/[0.07] p-3">
+                          <div className="flex items-start gap-3">
+                            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-orange-300/20 bg-black/35 text-xs font-black text-orange-100">
                               ↳
                             </div>
 
                             <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-200">
-                                  Replying to {replyingToComment.author}
-                                </p>
-                                {replyingToComment.verified && <VerifiedStamp />}
-                              </div>
-
-                              <p className="mt-1 line-clamp-2 text-sm font-bold leading-6 text-zinc-200">
+                              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-orange-200">
+                                Replying to {replyingToComment.author}
+                              </p>
+                              <p className="mt-1 max-h-12 overflow-hidden break-words text-xs font-bold leading-5 text-zinc-300">
                                 {getReplyPreview(replyingToComment.body)}
                               </p>
                             </div>
@@ -2157,7 +2153,7 @@ export default function FandomPage() {
                             <button
                               type="button"
                               onClick={() => setReplyingToId(null)}
-                              className="rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[11px] font-black text-zinc-400 transition hover:bg-white/[0.06] hover:text-white active:scale-95"
+                              className="shrink-0 rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[11px] font-black text-zinc-400 transition active:scale-95"
                             >
                               Cancel
                             </button>
@@ -2170,85 +2166,77 @@ export default function FandomPage() {
                           value={guestName}
                           onChange={(event) => setGuestName(event.target.value)}
                           placeholder="Name optional"
-                          className="mb-3 w-full rounded-[1.25rem] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
+                          className="mb-3 w-full rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
                         />
                       )}
 
-                      <div className="flex flex-col gap-3 sm:flex-row">
-                        <div className="flex-1">
-                          <textarea
-                            rows={2}
-                            value={commentBody}
-                            onChange={(event) => {
-                              const nextValue = event.target.value;
-                              setCommentBody(nextValue);
-                              if (moderationAlert) setModerationAlert("");
+                      <textarea
+                        rows={2}
+                        value={commentBody}
+                        onChange={(event) => {
+                          const nextValue = event.target.value;
+                          setCommentBody(nextValue);
+                          if (moderationAlert) setModerationAlert("");
 
-                              if (containsUnsupportedGifPage(nextValue)) {
-                                setMediaHint("Giphy/Tenor page links may not animate. Use + Media to upload the GIF file, or paste a direct .gif link.");
-                              } else if (!nextValue.trim()) {
-                                setMediaHint("");
-                              }
-                            }}
-                            onPaste={handlePaste}
-                            placeholder={
-                              replyingToComment
-                                ? `Reply to ${replyingToComment.author}...`
-                                : creatorMode
-                                  ? "Post as Site Creator... paste image or use + Media for GIF"
-                                  : "Drop a take... paste image or use + Media for GIF"
-                            }
-                            className="min-h-20 w-full resize-none rounded-[1.25rem] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
-                          />
+                          if (containsUnsupportedGifPage(nextValue)) {
+                            setMediaHint("Giphy/Tenor page links may not animate. Use + Media to upload the GIF file, or paste a direct .gif link.");
+                          } else if (!nextValue.trim()) {
+                            setMediaHint("");
+                          }
+                        }}
+                        onPaste={handlePaste}
+                        placeholder={
+                          replyingToComment
+                            ? `Reply to ${replyingToComment.author}...`
+                            : creatorMode
+                              ? "Post as Site Creator..."
+                              : "Drop a take..."
+                        }
+                        className="min-h-20 w-full resize-none rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
+                      />
 
-                          <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <input
-                              ref={mediaInputRef}
-                              type="file"
-                              accept="image/gif,image/png,image/jpeg,image/webp"
-                              className="hidden"
-                              onChange={handleMediaFileChange}
-                            />
+                      <div className="mt-3 flex items-center gap-2">
+                        <input
+                          ref={mediaInputRef}
+                          type="file"
+                          accept="image/gif,image/png,image/jpeg,image/webp"
+                          className="hidden"
+                          onChange={handleMediaFileChange}
+                        />
 
-                            <button
-                              type="button"
-                              onClick={() => mediaInputRef.current?.click()}
-                              disabled={mediaUploading}
-                              className="rounded-full border border-orange-300/25 bg-orange-400/10 px-3 py-1.5 text-xs font-black text-orange-100 transition hover:bg-orange-400/15 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              {mediaUploading ? "Uploading..." : "+ Media"}
-                            </button>
-
-                            <p className="text-[11px] font-bold text-zinc-500">
-                              Paste images when supported. Use + Media for GIFs so they animate.
-                            </p>
-
-                            {mediaHint && (
-                              <p className="basis-full rounded-2xl border border-orange-300/20 bg-orange-400/10 px-3 py-2 text-[11px] font-bold text-orange-100">
-                                {mediaHint}
-                              </p>
-                            )}
-
-                            {moderationAlert && (
-                              <p className="basis-full rounded-2xl border border-red-300/20 bg-red-400/10 px-3 py-2 text-[11px] font-bold text-red-100">
-                                {moderationAlert}
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => mediaInputRef.current?.click()}
+                          disabled={mediaUploading}
+                          className="shrink-0 rounded-full border border-orange-300/25 bg-orange-400/10 px-4 py-2 text-xs font-black text-orange-100 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {mediaUploading ? "Uploading..." : "+ Media"}
+                        </button>
 
                         <button
                           type="button"
                           onClick={handlePost}
                           disabled={!commentBody.trim() || mediaUploading}
                           className={[
-                            "rounded-[1.25rem] border px-5 py-3 text-sm font-black transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40",
+                            "ml-auto shrink-0 rounded-full border px-5 py-2 text-sm font-black transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40",
                             activeTone.pill,
                           ].join(" ")}
                         >
                           {creatorMode ? "Post" : "Send"}
                         </button>
                       </div>
+
+                      {mediaHint && (
+                        <p className="mt-2 rounded-2xl border border-orange-300/20 bg-orange-400/10 px-3 py-2 text-[11px] font-bold text-orange-100">
+                          {mediaHint}
+                        </p>
+                      )}
+
+                      {moderationAlert && (
+                        <p className="mt-2 rounded-2xl border border-red-300/20 bg-red-400/10 px-3 py-2 text-[11px] font-bold text-red-100">
+                          {moderationAlert}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
