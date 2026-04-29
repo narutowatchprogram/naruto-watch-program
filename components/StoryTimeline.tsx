@@ -562,7 +562,7 @@ export default function StoryTimeline() {
 
         {!mainStoryComplete && (
           <p className="mx-auto mt-8 max-w-3xl text-center text-sm font-medium leading-6 text-white/55 sm:text-base">
-            Mark each canon arc complete to move Naruto through the journey.
+            Mark each canon arc complete in chronological order to move Naruto through the journey.
           </p>
         )}
       </div>

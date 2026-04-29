@@ -9,6 +9,7 @@ const navItems = [
   { href: "/shippuden", label: "Shippuden" },
   { href: "/movies", label: "Movies" },
   { href: "/boruto", label: "Boruto" },
+  { href: "/fandom", label: "Fandom" },
   { href: "/guide", label: "Guide" },
 ];
 
