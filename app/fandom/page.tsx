@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { supabase } from "@/lib/supabase";
 import { uploadMedia } from "@/lib/uploadMedia";
+import { steps } from "@/data/steps";
+import { shippudenSteps } from "@/data/shippudenSteps";
 
 type Series = "naruto" | "shippuden";
 
@@ -111,6 +113,17 @@ const CREATOR_MODE_KEY = "naruto-watch-program-creator-mode";
 const FANDOM_COMMENTS_KEY = "naruto-watch-program-fandom-comments";
 const VISITOR_ID_KEY = "naruto-watch-program-visitor-id";
 const BORUTO_UNLOCK_KEY = "naruto-watch-program-boruto-unlocked";
+
+const REQUIRED_CANON_TYPES = new Set(["mangaCanon", "mixedCanon"]);
+
+const REQUIRED_MAIN_PROGRAM_IDS = [
+  ...steps
+    .filter((step) => REQUIRED_CANON_TYPES.has(step.canonType))
+    .map((step) => `naruto:${step.slug}`),
+  ...shippudenSteps
+    .filter((step) => REQUIRED_CANON_TYPES.has(step.canonType))
+    .map((step) => `shippuden:${step.slug}`),
+];
 
 const quickReactions = ["👍", "👎"];
 const COMMENT_COOLDOWN_MS = 8000;
@@ -399,20 +412,12 @@ function readMainProgramComplete() {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const progress = raw ? (JSON.parse(raw) as SavedProgressItem[]) : [];
-
-    const completionArcs = new Set([
-      "shippuden:final-battles-resume",
-      "shippuden:ending-run",
-      "shippuden:konoha-hiden",
-    ]);
-
-    const completedFinalArc = progress.some((item) =>
-      completionArcs.has(item.id)
+    const completedIds = new Set(
+      progress.flatMap((item) => [item.id, `${item.series}:${item.slug}`])
     );
 
-    return (
-      completedFinalArc ||
-      window.localStorage.getItem(BORUTO_UNLOCK_KEY) === "true"
+    return REQUIRED_MAIN_PROGRAM_IDS.every((requiredId) =>
+      completedIds.has(requiredId)
     );
   } catch {
     return false;
@@ -975,33 +980,51 @@ export default function FandomPage() {
     return [...topics, ...approvedTopics];
   }, [approvedTopics]);
 
+  const visibleTopics = useMemo(() => {
+    return allTopics.filter((topic) => {
+      if (creatorMode) return true;
+      if (topic.unlockType !== "main-complete") return true;
+      return mainProgramComplete;
+    });
+  }, [allTopics, creatorMode, mainProgramComplete]);
+
   const filteredTopics = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    if (!query) return allTopics;
+    if (!query) return visibleTopics;
 
-    return allTopics.filter((topic) => {
+    return visibleTopics.filter((topic) => {
+      const unlocked = topicIsUnlocked(
+        topic,
+        completedIds,
+        creatorMode,
+        mainProgramComplete
+      );
+
       return [
         topic.channelName,
         topic.shortCode,
         topic.arcTitle,
-        topic.title,
-        topic.description,
+        unlocked ? topic.title : "",
+        unlocked ? topic.description : "",
       ]
         .join(" ")
         .toLowerCase()
         .includes(query);
     });
-  }, [allTopics, searchQuery]);
+  }, [visibleTopics, searchQuery, completedIds, creatorMode, mainProgramComplete]);
 
   const unlockedTopics = useMemo(() => {
-    return allTopics.filter((topic) =>
+    return visibleTopics.filter((topic) =>
       topicIsUnlocked(topic, completedIds, creatorMode, mainProgramComplete)
     );
-  }, [allTopics, completedIds, creatorMode, mainProgramComplete]);
+  }, [visibleTopics, completedIds, creatorMode, mainProgramComplete]);
 
   const activeTopic =
-    allTopics.find((topic) => topic.id === activeTopicId) ?? allTopics[0];
+    visibleTopics.find((topic) => topic.id === activeTopicId) ??
+    unlockedTopics[0] ??
+    visibleTopics[0] ??
+    allTopics[0];
 
   const activeUnlocked = activeTopic
     ? topicIsUnlocked(
@@ -1664,7 +1687,7 @@ export default function FandomPage() {
                   {unlockedTopics.length} open
                 </div>
                 <div className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-zinc-300">
-                  {allTopics.length} rooms
+                  {visibleTopics.length} rooms
                 </div>
                 {creatorMode && (
                   <div className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-xs font-black text-sky-200">
@@ -1682,10 +1705,20 @@ export default function FandomPage() {
             </div>
 
             <div className="px-4 pb-5 sm:px-6">
-              <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 xl:mx-0 xl:overflow-visible xl:px-0 xl:pb-0">
-                <div className="flex gap-3 xl:flex-col">
+              <div className="space-y-5">
+                <div>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                      Rooms
+                    </p>
+                    <p className="text-xs font-bold text-zinc-500">
+                      Tap a room to open the thread
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
                   {filteredTopics.length === 0 && (
-                    <div className="min-w-full rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm font-bold text-zinc-500">
+                    <div className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm font-bold text-zinc-500">
                       No rooms found.
                     </div>
                   )}
@@ -1713,7 +1746,7 @@ export default function FandomPage() {
                           setModerationAlert("");
                         }}
                         className={[
-                          "group relative flex min-h-[104px] w-[82vw] shrink-0 flex-col justify-between overflow-hidden rounded-[1.45rem] border p-4 text-left transition active:scale-[0.98] sm:w-[360px] xl:w-full",
+                          "group relative flex min-h-[108px] w-full flex-col justify-between overflow-hidden rounded-[1.45rem] border p-4 text-left transition active:scale-[0.98]",
                           active
                             ? "border-orange-300/35 bg-orange-400/[0.12] shadow-[0_0_35px_rgba(249,115,22,0.16)]"
                             : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]",
@@ -1747,13 +1780,25 @@ export default function FandomPage() {
                         </div>
 
                         <div className="relative mt-3 flex items-center justify-between gap-3 text-xs font-bold text-zinc-400">
-                          <span>{unlocked ? "Open" : "Sealed"}</span>
-                          <span>{replyCount} posts</span>
+                          <span>{unlocked ? "Open" : `Unlock after ${topic.arcTitle}`}</span>
+                          <span>{unlocked ? `${replyCount} posts` : "Prompt hidden"}</span>
                         </div>
                       </button>
                     );
                   })}
+                  </div>
                 </div>
+
+                {!creatorMode && !mainProgramComplete && allTopics.some((topic) => topic.unlockType === "main-complete") && (
+                  <div className="rounded-[1.5rem] border border-white/10 bg-black/30 px-4 py-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                      Final rooms hidden
+                    </p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-zinc-400">
+                      Main Program Complete rooms unlock only after every required Naruto and Shippuden canon arc is checked off.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <details className="mt-4 overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.035]">
