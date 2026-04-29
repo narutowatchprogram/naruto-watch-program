@@ -24,73 +24,56 @@ type ProgressToggleProps = {
   onToggle?: (nextCompleted: boolean) => void;
 };
 
+type CanonType =
+  | "mangaCanon"
+  | "animeCanon"
+  | "mixedCanon"
+  | "filler"
+  | "movie";
+
 type TimelineStep = {
   id: string;
   series: Series;
   slug: string;
 };
 
+type StepWithCanon = {
+  slug: string;
+  canonType?: CanonType;
+};
+
 const STORAGE_KEY = "naruto-watch-program-progress";
 const PROGRESS_EVENT = "naruto-progress-updated";
 
-const OPTIONAL_CANON_NOVEL_SLUGS = new Set([
-  "itachi-shinden",
-  "sasuke-shinden",
-  "shikamaru-hiden",
-]);
-
-const OPTIONAL_ANIME_ORIGINAL_SLUGS = new Set(["kakashi-anbu-arc"]);
-
-const REQUIRED_SHIPPUDEN_ENDING_SLUGS = new Set([
-  "movie-the-last",
-  "konoha-hiden",
-]);
-
-const NON_CANON_STEP_SLUGS = new Set([
-  "movie-land-of-snow",
-  "movie-stone-of-gelel",
-  "movie-crescent-moon",
-  "part-1-filler-block",
-  "kakashi-face-reveal",
-  "movie-shippuden-1",
-  "early-filler-block",
-  "mid-filler-block",
-  "movie-bonds",
-  "movie-will-of-fire",
-  "movie-lost-tower",
-  "late-filler-block",
-  "pain-interruption",
-  "post-pain-filler-block",
-  "movie-blood-prison",
-  "war-setup-filler-block",
-  "war-filler-break-1",
-  "war-filler-break-2",
-  "war-filler-break-3",
-  "war-filler-break-4",
-  "war-filler-break-5",
-  "war-filler-break-6a",
-  "war-filler-break-7",
-  "war-filler-break-8",
-  "war-filler-break-9",
-  "war-filler-break-12",
-  "late-ending-filler-break",
-  "kakashi-face-reveal-2",
-  "ending-filler-break",
-  "movie-road-to-ninja",
-]);
-
+const REQUIRED_CANON_TYPES = new Set<CanonType>(["mangaCanon", "mixedCanon"]);
+const REQUIRED_SHIPPUDEN_MOVIE_SLUGS = new Set(["movie-the-last"]);
 const BORUTO_HOKAGE_UNLOCK_SLUG = "academy-opening-mixed";
+
+function isRequiredMainTimelineStep(series: Series, step: StepWithCanon) {
+  if (series === "boruto") {
+    return step.slug === BORUTO_HOKAGE_UNLOCK_SLUG;
+  }
+
+  if (
+    series === "shippuden" &&
+    REQUIRED_SHIPPUDEN_MOVIE_SLUGS.has(step.slug)
+  ) {
+    return true;
+  }
+
+  return step.canonType ? REQUIRED_CANON_TYPES.has(step.canonType) : false;
+}
 
 const mainTimelineSteps: TimelineStep[] = [
   ...steps
-    .filter((step) => isNarutoTimelineStep(step.slug))
+    .filter((step) => isRequiredMainTimelineStep("naruto", step))
     .map((step) => ({
       id: `naruto:${step.slug}`,
       series: "naruto" as const,
       slug: step.slug,
     })),
   ...shippudenSteps
-    .filter((step) => isShippudenTimelineStep(step.slug))
+    .filter((step) => isRequiredMainTimelineStep("shippuden", step))
     .map((step) => ({
       id: `shippuden:${step.slug}`,
       series: "shippuden" as const,
@@ -112,24 +95,6 @@ const rewardTimelineSteps: TimelineStep[] = borutoHokageStep
       },
     ]
   : mainTimelineSteps;
-
-function isNarutoTimelineStep(slug: string) {
-  return (
-    !NON_CANON_STEP_SLUGS.has(slug) &&
-    !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
-    !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
-  );
-}
-
-function isShippudenTimelineStep(slug: string) {
-  if (REQUIRED_SHIPPUDEN_ENDING_SLUGS.has(slug)) return true;
-
-  return (
-    !NON_CANON_STEP_SLUGS.has(slug) &&
-    !OPTIONAL_CANON_NOVEL_SLUGS.has(slug) &&
-    !OPTIONAL_ANIME_ORIGINAL_SLUGS.has(slug)
-  );
-}
 
 function readProgress(): SavedProgressItem[] {
   if (typeof window === "undefined") return [];

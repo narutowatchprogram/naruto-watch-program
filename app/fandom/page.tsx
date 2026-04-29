@@ -830,6 +830,73 @@ function CommentBody({ body }: { body: string }) {
   );
 }
 
+const ADMIN_FUNCTION_KEY_STORAGE_KEY = "naruto-watch-program-fandom-admin-key";
+
+type AdminFunctionPayload = {
+  action:
+    | "approve-topic-request"
+    | "reject-topic-request"
+    | "delete-topic-request"
+    | "delete-approved-topic"
+    | "clear-room-comments"
+    | "delete-comment";
+  requestId?: string;
+  topicId?: string;
+  commentId?: string;
+  topic?: string;
+  unlockType?: "arc" | "main-complete";
+  series?: Series;
+  arcSlug?: string;
+  arcTitle?: string;
+};
+
+async function callFandomAdmin<T = unknown>(payload: AdminFunctionPayload) {
+  if (typeof window === "undefined") {
+    throw new Error("Admin actions must run in the browser.");
+  }
+
+  let adminKey = window.localStorage.getItem(ADMIN_FUNCTION_KEY_STORAGE_KEY) ?? "";
+
+  if (!adminKey) {
+    adminKey = window.prompt("Enter your private fandom admin key")?.trim() ?? "";
+
+    if (!adminKey) {
+      throw new Error("Admin key required.");
+    }
+
+    window.localStorage.setItem(ADMIN_FUNCTION_KEY_STORAGE_KEY, adminKey);
+  }
+
+  const functionUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/fandom-admin`;
+
+  const response = await fetch(functionUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-key": adminKey,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    window.localStorage.removeItem(ADMIN_FUNCTION_KEY_STORAGE_KEY);
+    const message =
+      data && typeof data === "object" && "error" in data
+        ? String(data.error)
+        : `Admin request failed (${response.status})`;
+    throw new Error(message);
+  }
+
+  if (data && typeof data === "object" && "error" in data) {
+    window.localStorage.removeItem(ADMIN_FUNCTION_KEY_STORAGE_KEY);
+    throw new Error(String(data.error));
+  }
+
+  return (data as { data?: T })?.data as T;
+}
+
 export default function FandomPage() {
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [creatorMode, setCreatorMode] = useState(false);
@@ -935,36 +1002,30 @@ export default function FandomPage() {
         );
       }
 
-      const { data: requestData, error: requestError } = await supabase
+      const { data: topicRequestRows, error: topicRequestError } = await supabase
         .from("topic_requests")
         .select("*")
-        .is("approved_at", null)
-        .is("rejected_at", null)
         .order("created_at", { ascending: false });
 
-      if (requestError) {
-        console.error("Failed to load topic requests:", requestError.message);
-      } else {
-        setTopicRequests(
-          groupTopicRequests((requestData ?? []) as SupabaseTopicRequestRow[])
+      if (topicRequestError) {
+        console.error(
+          "Failed to load topic requests:",
+          topicRequestError.message
         );
-      }
-
-      const { data: approvedData, error: approvedError } = await supabase
-        .from("topic_requests")
-        .select("*")
-        .not("approved_at", "is", null)
-        .is("rejected_at", null)
-        .order("approved_at", { ascending: false });
-
-      if (approvedError) {
-        console.error("Failed to load approved topics:", approvedError.message);
       } else {
-        setApprovedTopics(
-          groupApprovedTopicRequests(
-            (approvedData ?? []) as SupabaseTopicRequestRow[]
-          )
+        const allRequestRows =
+          (topicRequestRows ?? []) as SupabaseTopicRequestRow[];
+
+        const pendingRows = allRequestRows.filter(
+          (row) => !row.deleted_at && !row.approved_at && !row.rejected_at
         );
+
+        const approvedRows = allRequestRows.filter(
+          (row) => !row.deleted_at && Boolean(row.approved_at) && !row.rejected_at
+        );
+
+        setTopicRequests(groupTopicRequests(pendingRows));
+        setApprovedTopics(groupApprovedTopicRequests(approvedRows));
       }
     }
 
@@ -1292,27 +1353,15 @@ export default function FandomPage() {
   async function handleDelete(commentId: string) {
     if (!activeTopic || !creatorMode) return;
 
-    const softDelete = await supabase
-      .from("comments")
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: "Site Creator",
-        moderation_status: "deleted",
-        moderation_reason: "Deleted by creator",
-      })
-      .or(`id.eq.${commentId},parent_id.eq.${commentId}`);
-
-    if (softDelete.error) {
-      const hardDelete = await supabase
-        .from("comments")
-        .delete()
-        .or(`id.eq.${commentId},parent_id.eq.${commentId}`);
-
-      if (hardDelete.error) {
-        console.error("Failed to delete comment:", hardDelete.error.message);
-        window.alert("Could not delete comment. Try again.");
-        return;
-      }
+    try {
+      await callFandomAdmin({
+        action: "delete-comment",
+        commentId,
+      });
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      window.alert("Could not delete comment. Try again.");
+      return;
     }
 
     const nextTopicComments = (savedComments[activeTopic.id] ?? []).filter(
@@ -1385,24 +1434,20 @@ export default function FandomPage() {
   }
 
   async function approveTopicRequest(request: TopicRequest) {
-    const { data, error } = await supabase
-      .from("topic_requests")
-      .update({
-        approved_at: new Date().toISOString(),
-        approved_by: "Site Creator",
-        channel_name: generateTopicChannelName(request.topic),
-        short_code: generateTopicShortCode(request.topic),
-        unlock_type: request.unlockType,
-        series: request.series,
-        arc_slug: request.arcSlug,
-        arc_title: request.arcTitle,
-      })
-      .eq("id", request.id)
-      .select("*")
-      .single();
+    let data: SupabaseTopicRequestRow;
 
-    if (error) {
-      console.error("Failed to approve topic request:", error.message);
+    try {
+      data = await callFandomAdmin<SupabaseTopicRequestRow>({
+        action: "approve-topic-request",
+        requestId: request.id,
+        topic: request.topic,
+        unlockType: request.unlockType,
+        series: request.series,
+        arcSlug: request.arcSlug,
+        arcTitle: request.arcTitle,
+      });
+    } catch (error) {
+      console.error("Failed to approve topic request:", error);
       window.alert("Could not approve topic request. Try again.");
       return;
     }
@@ -1412,21 +1457,19 @@ export default function FandomPage() {
     );
 
     setApprovedTopics((currentTopics) => [
-      ...groupApprovedTopicRequests([data as SupabaseTopicRequestRow]),
+      ...groupApprovedTopicRequests([data]),
       ...currentTopics,
     ]);
   }
 
   async function rejectTopicRequest(requestId: string) {
-    const { error } = await supabase
-      .from("topic_requests")
-      .update({
-        rejected_at: new Date().toISOString(),
-      })
-      .eq("id", requestId);
-
-    if (error) {
-      console.error("Failed to reject topic request:", error.message);
+    try {
+      await callFandomAdmin({
+        action: "reject-topic-request",
+        requestId,
+      });
+    } catch (error) {
+      console.error("Failed to reject topic request:", error);
       window.alert("Could not reject topic request. Try again.");
       return;
     }
@@ -1437,28 +1480,21 @@ export default function FandomPage() {
   }
 
 
+
+
+
   async function deleteTopicRequest(requestId: string) {
     if (!creatorMode) return;
 
-    const softDelete = await supabase
-      .from("topic_requests")
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: "Site Creator",
-      })
-      .eq("id", requestId);
-
-    if (softDelete.error) {
-      const hardDelete = await supabase
-        .from("topic_requests")
-        .delete()
-        .eq("id", requestId);
-
-      if (hardDelete.error) {
-        console.error("Failed to delete topic request:", hardDelete.error.message);
-        window.alert("Could not delete topic request. Try again.");
-        return;
-      }
+    try {
+      await callFandomAdmin({
+        action: "delete-topic-request",
+        requestId,
+      });
+    } catch (error) {
+      console.error("Failed to delete topic request:", error);
+      window.alert("Could not delete topic request. Try again.");
+      return;
     }
 
     setTopicRequests((currentRequests) =>
@@ -1469,29 +1505,15 @@ export default function FandomPage() {
   async function deleteApprovedTopic(topicId: string) {
     if (!creatorMode) return;
 
-    const requestId = topicId.replace("community-", "");
-
-    const softDelete = await supabase
-      .from("topic_requests")
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: "Site Creator",
-      })
-      .eq("id", requestId);
-
-    if (softDelete.error) {
-      const fallbackReject = await supabase
-        .from("topic_requests")
-        .update({
-          rejected_at: new Date().toISOString(),
-        })
-        .eq("id", requestId);
-
-      if (fallbackReject.error) {
-        console.error("Failed to delete approved topic:", fallbackReject.error.message);
-        window.alert("Could not delete room. Try again.");
-        return;
-      }
+    try {
+      await callFandomAdmin({
+        action: "delete-approved-topic",
+        topicId,
+      });
+    } catch (error) {
+      console.error("Failed to delete approved topic:", error);
+      window.alert("Could not delete room. Try again.");
+      return;
     }
 
     setApprovedTopics((currentTopics) =>
@@ -1504,6 +1526,9 @@ export default function FandomPage() {
   }
 
 
+
+
+
   async function deleteAllCommentsInActiveRoom() {
     if (!creatorMode || !activeTopic) return;
 
@@ -1513,27 +1538,15 @@ export default function FandomPage() {
 
     if (!confirmed) return;
 
-    const softDelete = await supabase
-      .from("comments")
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: "Site Creator",
-        moderation_status: "deleted",
-        moderation_reason: "Thread cleared by creator",
-      })
-      .eq("topic_id", activeTopic.id);
-
-    if (softDelete.error) {
-      const hardDelete = await supabase
-        .from("comments")
-        .delete()
-        .eq("topic_id", activeTopic.id);
-
-      if (hardDelete.error) {
-        console.error("Failed to clear room comments:", hardDelete.error.message);
-        window.alert("Could not clear comments. Try again.");
-        return;
-      }
+    try {
+      await callFandomAdmin({
+        action: "clear-room-comments",
+        topicId: activeTopic.id,
+      });
+    } catch (error) {
+      console.error("Failed to clear room comments:", error);
+      window.alert("Could not clear comments. Try again.");
+      return;
     }
 
     setSavedComments({
@@ -1706,13 +1719,84 @@ export default function FandomPage() {
 
             <div className="px-4 pb-5 sm:px-6">
               <div className="space-y-5">
+                {creatorMode && (
+                  <div className="overflow-hidden rounded-[1.5rem] border border-sky-300/20 bg-sky-400/[0.055]">
+                    <div className="flex items-center justify-between gap-3 border-b border-sky-300/10 px-4 py-4">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-sky-200">
+                          Pending ideas
+                        </p>
+                        <p className="mt-1 text-xs font-bold text-sky-100/65">
+                          Creator review queue
+                        </p>
+                      </div>
+                      <p className="rounded-full border border-sky-300/20 bg-black/25 px-3 py-1.5 text-[11px] font-black text-sky-100">
+                        {topicRequests.length}
+                      </p>
+                    </div>
+
+                    {topicRequests.length === 0 ? (
+                      <div className="px-4 py-5 text-sm font-bold leading-6 text-sky-100/55">
+                        No pending room ideas right now.
+                      </div>
+                    ) : (
+                      <div className="space-y-3 px-4 py-4">
+                        {topicRequests.map((request) => (
+                          <div
+                            key={request.id}
+                            className="rounded-2xl border border-white/10 bg-black/35 px-3 py-3 text-xs text-zinc-300"
+                          >
+                            <p className="break-words font-black text-white">
+                              {request.topic}
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-bold text-zinc-500">
+                              <span>From {request.name}</span>
+                              <span>•</span>
+                              <span>Unlocks after {request.arcTitle}</span>
+                            </div>
+                            {request.note && (
+                              <p className="mt-2 break-words leading-5 text-zinc-300">
+                                {request.note}
+                              </p>
+                            )}
+
+                            <div className="mt-3 grid grid-cols-3 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => approveTopicRequest(request)}
+                                className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-[11px] font-black text-emerald-100 transition active:scale-95"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => rejectTopicRequest(request.id)}
+                                className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-2 text-[11px] font-black text-red-100 transition active:scale-95"
+                              >
+                                Reject
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteTopicRequest(request.id)}
+                                className="rounded-full border border-zinc-500/30 bg-zinc-500/10 px-3 py-2 text-[11px] font-black text-zinc-200 transition active:scale-95"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div>
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
                       Rooms
                     </p>
                     <p className="text-xs font-bold text-zinc-500">
-                      Tap a room to open the thread
+                      Tap to view
                     </p>
                   </div>
 
@@ -1746,7 +1830,7 @@ export default function FandomPage() {
                           setModerationAlert("");
                         }}
                         className={[
-                          "group relative flex min-h-[108px] w-full flex-col justify-between overflow-hidden rounded-[1.45rem] border p-4 text-left transition active:scale-[0.98]",
+                          "group relative flex min-h-[94px] w-full flex-col justify-between overflow-hidden rounded-[1.45rem] border p-4 text-left transition active:scale-[0.98]",
                           active
                             ? "border-orange-300/35 bg-orange-400/[0.12] shadow-[0_0_35px_rgba(249,115,22,0.16)]"
                             : "border-white/10 bg-white/[0.035] hover:bg-white/[0.06]",
@@ -1874,66 +1958,7 @@ export default function FandomPage() {
                     </p>
                   )}
 
-                  {creatorMode && topicRequests.length > 0 && (
-                    <div className="mt-5 border-t border-white/10 pt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-sky-200">
-                          Pending ideas
-                        </p>
-                        <p className="rounded-full border border-sky-300/20 bg-sky-400/10 px-2 py-1 text-[10px] font-black text-sky-200">
-                          {topicRequests.length}
-                        </p>
-                      </div>
 
-                      <div className="mt-3 space-y-3">
-                        {topicRequests.map((request) => (
-                          <div
-                            key={request.id}
-                            className="rounded-2xl border border-white/10 bg-black/40 px-3 py-3 text-xs text-zinc-300"
-                          >
-                            <p className="font-black text-white">
-                              {request.topic}
-                            </p>
-                            <p className="mt-1 text-zinc-500">
-                              From {request.name}
-                            </p>
-                            <p className="mt-1 text-[11px] font-black uppercase tracking-[0.12em] text-orange-200/80">
-                              Unlocks after {request.arcTitle}
-                            </p>
-                            {request.note && (
-                              <p className="mt-2 leading-5 text-zinc-300">
-                                {request.note}
-                              </p>
-                            )}
-
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => approveTopicRequest(request)}
-                                className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-black text-emerald-100 transition active:scale-95"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => rejectTopicRequest(request.id)}
-                                className="rounded-full border border-red-300/25 bg-red-400/10 px-3 py-1.5 text-[11px] font-black text-red-100 transition active:scale-95"
-                              >
-                                Reject
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => deleteTopicRequest(request.id)}
-                                className="rounded-full border border-zinc-500/30 bg-zinc-500/10 px-3 py-1.5 text-[11px] font-black text-zinc-200 transition active:scale-95"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </details>
             </div>

@@ -36,46 +36,9 @@ type StepWithCanon = {
 const STORAGE_KEY = "naruto-watch-program-progress";
 const BORUTO_UNLOCK_KEY = "naruto-watch-program-boruto-unlocked";
 
-const NON_CANON_STEP_SLUGS = new Set([
-  "movie-land-of-snow",
-  "movie-stone-of-gelel",
-  "movie-crescent-moon",
-  "part-1-filler-block",
-  "movie-shippuden-1",
-  "early-filler-block",
-  "mid-filler-block",
-  "movie-bonds",
-  "movie-will-of-fire",
-  "movie-lost-tower",
-  "late-filler-block",
-  "pain-interruption",
-  "post-pain-filler-block",
-  "movie-blood-prison",
-  "war-setup-filler-block",
-  "war-filler-break-1",
-  "war-filler-break-2",
-  "war-filler-break-3",
-  "war-filler-break-4",
-  "war-filler-break-5",
-  "war-filler-break-6a",
-  "war-filler-break-7",
-  "war-filler-break-8",
-  "war-filler-break-9",
-  "war-filler-break-12",
-  "late-ending-filler-break",
-  "ending-filler-break",
-  "movie-road-to-ninja",
-  "early-filler-break",
-  "team-7-filler-break",
-  "cho-cho-filler-break",
-  "small-filler-break-1",
-  "filler-break-2",
-  "filler-break-3",
-  "filler-break-4",
-  "filler-break-5",
-  "late-filler-break",
-  "kakashi-face-reveal",
-  "kakashi-face-reveal-2",
+const REQUIRED_MAIN_CANON_TYPES = new Set<CanonType>([
+  "mangaCanon",
+  "mixedCanon",
 ]);
 
 const OPTIONAL_SHIPPUDEN_SLUGS = new Set([
@@ -83,6 +46,11 @@ const OPTIONAL_SHIPPUDEN_SLUGS = new Set([
   "sasuke-shinden",
   "shikamaru-hiden",
   "kakashi-anbu-arc",
+]);
+
+const REQUIRED_SHIPPUDEN_SPECIAL_SLUGS = new Set([
+  "movie-the-last",
+  "konoha-hiden",
 ]);
 
 const BORUTO_REQUIRED_SLUGS = new Set([
@@ -104,11 +72,7 @@ function isMainTimelineStep(series: Series, step: StepWithCanon) {
     return BORUTO_REQUIRED_SLUGS.has(step.slug);
   }
 
-  if (series === "shippuden" && step.slug === "konoha-hiden") {
-    return true;
-  }
-
-  if (series === "shippuden" && step.slug === "movie-the-last") {
+  if (series === "shippuden" && REQUIRED_SHIPPUDEN_SPECIAL_SLUGS.has(step.slug)) {
     return true;
   }
 
@@ -116,7 +80,11 @@ function isMainTimelineStep(series: Series, step: StepWithCanon) {
     return false;
   }
 
-  return !NON_CANON_STEP_SLUGS.has(step.slug);
+  if (!step.canonType) {
+    return false;
+  }
+
+  return REQUIRED_MAIN_CANON_TYPES.has(step.canonType);
 }
 
 const part1CanonSteps: TimelineStep[] = steps
@@ -167,6 +135,9 @@ function getNarutoStage(
   mainProgressIndex: number,
   isBorutoStageActive: boolean
 ) {
+  const part1Length = part1CanonSteps.length;
+  const shippudenIndex = Math.max(0, mainProgressIndex - part1Length);
+
   if (mainProgressIndex === 0) {
     return {
       key: "academy",
@@ -211,7 +182,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 6) {
+  if (mainProgressIndex < part1Length) {
     return {
       key: "sasuke-retrieval",
       label: "Sasuke Retrieval Naruto",
@@ -222,7 +193,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 7) {
+  if (shippudenIndex < 2) {
     return {
       key: "early-shippuden",
       label: "Early Shippuden Naruto",
@@ -233,7 +204,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 9) {
+  if (shippudenIndex < 4) {
     return {
       key: "shippuden-rasengan",
       label: "Akatsuki / Itachi / Jiraiya Naruto",
@@ -244,7 +215,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 11) {
+  if (shippudenIndex < 6) {
     return {
       key: "sage-mode",
       label: "Sage Mode Naruto",
@@ -255,7 +226,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 12) {
+  if (shippudenIndex < 7) {
     return {
       key: "five-kage",
       label: "Five Kage Summit Naruto",
@@ -266,7 +237,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 15) {
+  if (shippudenIndex < 10) {
     return {
       key: "kcm1",
       label: "KCM1 Naruto",
@@ -277,7 +248,7 @@ function getNarutoStage(
     };
   }
 
-  if (mainProgressIndex < 20) {
+  if (shippudenIndex < 15) {
     return {
       key: "mid-war-open-jacket",
       label: "Mid-War Naruto",
