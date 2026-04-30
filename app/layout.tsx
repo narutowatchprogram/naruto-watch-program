@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Zen_Maru_Gothic } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-black text-white">
         <SiteHeader />
         {children}
+        <Analytics />
       </body>
     </html>
   );
